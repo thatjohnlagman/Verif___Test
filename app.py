@@ -72,28 +72,8 @@ def init_streamlit():
 
 def display_navbar():
     """Display the navigation bar with 4 tabs"""
-    # Check if dark mode is enabled using custom CSS
-    st.markdown(
-        """
-        <style>
-        .reportview-container {
-            background-color: #0e1117; /* Background color in dark mode */
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # Get the color scheme from the Streamlit theme
-    theme = st.config.get_option("theme.base")
-
-    # Choose the image based on the theme
-    if theme == "dark":
-        image_path = os.path.join("images", "1-dark.svg")  # Replace with your dark mode image
-    else:
-        image_path = os.path.join("images", "1-light.svg")  # Your original light mode image
-
     # Display the image at the top
+    image_path = os.path.join("images", "1.svg")
     st.image(image_path, use_container_width=True)
 
     # Center the title and subtitle using HTML and CSS
