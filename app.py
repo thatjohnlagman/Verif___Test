@@ -130,18 +130,8 @@ def display_navbar():
     )
 
     # Use the dark mode image
-    image_path = os.path.join("images", "1.svg")  # Replace with your dark mode image
-    text_color = "rgb(255, 255, 255)"  # White text for dark mode
-
-    # Display the image at the top, centered with padding
-    st.markdown(
-        f"""
-        <div class="image-container">
-            <img src="data:image/svg+xml;base64,{base64.b64encode(open(image_path, 'rb').read()).decode()}" alt="Logo">
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    image_path = os.path.join("images", "1.svg")  # Correct path to your dark mode image
+    st.image(image_path, use_container_width=True)
 
     # Center the title and subtitle using HTML and CSS
     st.markdown(
@@ -165,7 +155,6 @@ def display_navbar():
     )
 
     return tab1, tab2, tab3, tab4
-
 
 def phishing_detection_navbar(detector):
     st.title("Phishing Detection")
