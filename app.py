@@ -207,7 +207,7 @@ def deepfake_image_detector_menu(detector):
                 <h3 style="display: inline-block; margin-left: 20px;">
                     Prediction: <span style="color: {color};">{predicted_label}</span>
                 </h3>
-                <p style="display: inline-block; font-size: 20px; margin-left: -5px;">
+                <p style="display: inline-block; font-size: 20px; margin-left: -6px;">
                     Confidence: {confidence*100:.2f}%
                 </p>
             </div>
