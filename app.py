@@ -184,7 +184,7 @@ def deepfake_image_detector_menu(detector):
             f"""
             <div style="text-align: center;">
                 <img src="data:image/png;base64,{image_to_base64(image)}" alt="Uploaded Image" width="400"/>
-                <p>Uploaded Image</p>
+                <p><strong>Uploaded Image</strong></p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -193,15 +193,23 @@ def deepfake_image_detector_menu(detector):
         # Make prediction
         predicted_label, confidence = detector.predict(image)
 
-        # Center the prediction and confidence output with your specific formatting
+        # Determine color based on label
+        color = "green" if predicted_label.upper() == "REAL" else "red"
+
+        # Center the prediction and confidence output with original styling
         st.markdown(
             f"""
             <div style="text-align: center;">
-                <h3 style="display: inline-block; margin-left: 20px;">Prediction: <span style="color: {'green' if predicted_label == 'REAL' else 'red'};">{predicted_label}</span></h3>
-                <p style="display: inline-block; font-size: 20px; margin-left: -5px;">Confidence: {confidence*100:.2f}%</p>
+                <h3 style="display: inline-block; margin-left: 20px;">
+                    Prediction: <span style="color: {color};">{predicted_label}</span>
+                </h3>
+                <p style="display: inline-block; font-size: 20px; margin-left: -5px;">
+                    Confidence: {confidence*100:.2f}%
+                </p>
             </div>
             """,
-            unsafe_allow_html=True)
+            unsafe_allow_html=True,
+        )
 
 # Function to convert the image to base64 for inline display in HTML
 def image_to_base64(image):
