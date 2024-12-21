@@ -3,6 +3,7 @@ from PIL import Image
 import os
 import helpers
 import gdown
+import base64
 
 # Google Drive IDs - These should be the IDs of the FOLDERS on Google Drive
 MODEL_FOLDER_ID = {
@@ -28,7 +29,7 @@ def init_streamlit():
     """Initialize Streamlit page configuration and styling"""
     st.set_page_config(
         page_title="VerifAI: Where AI Meets Authentication",
-        page_icon=os.path.join("images", "Logo.png"),  
+        page_icon=os.path.join("images", "Logo.png"),
         layout="wide",
         initial_sidebar_state="auto"
     )
@@ -72,35 +73,116 @@ def init_streamlit():
 
 def display_navbar():
     """Display the navigation bar with 4 tabs"""
-    # Display the image at the top
-    image_path = os.path.join("images", "1.svg")
-    st.image(image_path, use_container_width=True)
 
-    # Center the title and subtitle using HTML and CSS
-    st.markdown("""
-        <div style="text-align: center;">
-            <h1 style="font-size: 2.5em; margin-bottom: 0.1em;">VerifAI: Where AI Meets Authentication</h1>
-            <h3 style="font-weight: normal; color: gray; margin-top: -0.8em; margin-bottom: 0.7em;">Spot fakes and trust with confidence—powered by AI algorithms.</h3>
-        </div>
-    """, unsafe_allow_html=True)
-
-    # Inject custom CSS to style the navbar tabs
-    st.markdown("""
+    # Inject custom CSS to determine the theme (dark or light) and style elements
+    st.markdown(
+        """
         <style>
+            /* Light mode */
+            body {
+                --text-color: rgb(81, 0, 12); /* Example text color in light mode */
+                --background-color: #ffffff; /* Example background color in light mode */
+            }
+            /* Dark mode */
+            body.streamlit-dark {
+                --text-color: rgb(255, 255, 255); /* Example text color in dark mode */
+                --background-color: #0e1117; /* Example background color in dark mode */
+            }
+
+            .image-container {
+                text-align: center;
+            }
+
+            .image-container img {
+                max-width: 80%; /* Adjust as needed */
+            }
+
+            /* Styling for the title and subtitle */
+            .title-container {
+                text-align: center;
+            }
+
+            .title-container h1 {
+                font-size: 2.5em;
+                margin-bottom: 0.1em;
+                color: var(--text-color); /* Use the CSS variable */
+            }
+
+            .title-container h3 {
+                font-weight: normal;
+                color: gray;
+                margin-top: -0.8em;
+                margin-bottom: 0.7em;
+            }
+
             /* Increase the font size of the tab titles */
             .stTabs [role="tab"] {
                 font-size: 1.5em !important;
                 font-weight: bold !important;
             }
+
+            /* Set desired color for the navbar text */
+            .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
+                color: #ff4500
+            }
         </style>
-    """, unsafe_allow_html=True)
+        <script>
+            // JavaScript to detect and apply dark mode class
+            const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const body = document.querySelector('body');
+            if (isDarkMode) {
+                body.classList.add('streamlit-dark');
+            } else {
+                body.classList.remove('streamlit-dark');
+            }
+        </script>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Determine the theme mode based on the injected CSS
+    theme_mode = "dark" if st.markdown(
+        '<style>.reportview-container { background-color: var(--background-color); }</style>',
+        unsafe_allow_html=True,
+    ) else "light"
+
+    # Choose the image based on the theme
+    if theme_mode == "dark":
+        image_path = os.path.join("images", "1-dark.svg")  # Replace with your dark mode image
+        text_color = "rgb(255, 255, 255)"  # White text for dark mode
+    else:
+        image_path = os.path.join("images", "1-light.svg")  # Your original light mode image
+        text_color = "rgb(81, 0, 12)"  # Dark text for light mode
+
+    # Display the image at the top, centered with padding
+    st.markdown(
+        f"""
+        <div class="image-container">
+            <img src="data:image/svg+xml;base64,{base64.b64encode(open(image_path, 'rb').read()).decode()}" alt="Logo">
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Center the title and subtitle using HTML and CSS
+    st.markdown(
+        f"""
+        <div class="title-container">
+            <h1 style="color: {text_color};">VerifAI: Where AI Meets Authentication</h1>
+            <h3>Spot fakes and trust with confidence—powered by AI algorithms.</h3>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     # Navbar for navigation between models
     tab1, tab2, tab3, tab4 = st.tabs(
-        ["Deepfake Audio Detector",
-         "Deepfake Image Detector",
-         "AI Text Detector",
-         "Phishing Link Detector"]
+        [
+            "Deepfake Audio Detector",
+            "Deepfake Image Detector",
+            "AI Text Detector",
+            "Phishing Link Detector",
+        ]
     )
 
     return tab1, tab2, tab3, tab4
