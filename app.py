@@ -74,19 +74,19 @@ def init_streamlit():
 def display_navbar():
     """Display the navigation bar with 4 tabs"""
 
-    # Inject custom CSS to determine the theme (dark or light) and style elements
+    # Inject custom CSS to force dark mode and style elements
     st.markdown(
         """
         <style>
-            /* Light mode */
-            body {
-                --text-color: rgb(81, 0, 12); /* Example text color in light mode */
-                --background-color: #ffffff; /* Example background color in light mode */
+            /* Force dark mode */
+            html, body, [class*="ViewContainer"] {
+                background-color: #0e1117; /* Streamlit's dark mode background color */
+                color: #fafafa; /* Light text color for contrast */
             }
-            /* Dark mode */
-            body.streamlit-dark {
-                --text-color: rgb(255, 255, 255); /* Example text color in dark mode */
-                --background-color: #0e1117; /* Example background color in dark mode */
+
+            /* Set the text color for the title in dark mode */
+            .title-container h1 {
+                color: rgb(255, 255, 255) !important; /* White text */
             }
 
             .image-container {
@@ -105,7 +105,6 @@ def display_navbar():
             .title-container h1 {
                 font-size: 2.5em;
                 margin-bottom: 0.1em;
-                color: var(--text-color); /* Use the CSS variable */
             }
 
             .title-container h3 {
@@ -126,33 +125,13 @@ def display_navbar():
                 color: #ff4500
             }
         </style>
-        <script>
-            // JavaScript to detect and apply dark mode class
-            const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const body = document.querySelector('body');
-            if (isDarkMode) {
-                body.classList.add('streamlit-dark');
-            } else {
-                body.classList.remove('streamlit-dark');
-            }
-        </script>
         """,
         unsafe_allow_html=True,
     )
 
-    # Determine the theme mode based on the injected CSS
-    theme_mode = "dark" if st.markdown(
-        '<style>.reportview-container { background-color: var(--background-color); }</style>',
-        unsafe_allow_html=True,
-    ) else "light"
-
-    # Choose the image based on the theme
-    if theme_mode == "dark":
-        image_path = os.path.join("images", "1-dark.svg")  # Replace with your dark mode image
-        text_color = "rgb(255, 255, 255)"  # White text for dark mode
-    else:
-        image_path = os.path.join("images", "1-light.svg")  # Your original light mode image
-        text_color = "rgb(81, 0, 12)"  # Dark text for light mode
+    # Use the dark mode image
+    image_path = os.path.join("images", "1.svg")  # Replace with your dark mode image
+    text_color = "rgb(255, 255, 255)"  # White text for dark mode
 
     # Display the image at the top, centered with padding
     st.markdown(
@@ -186,6 +165,7 @@ def display_navbar():
     )
 
     return tab1, tab2, tab3, tab4
+
 
 def phishing_detection_navbar(detector):
     st.title("Phishing Detection")
