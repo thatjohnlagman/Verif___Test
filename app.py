@@ -169,7 +169,6 @@ def deepfake_audio_detector_menu(detector):
         except Exception as e:
             st.error(f"An error occurred while processing the audio file: {e}")
 
-# Streamlit interface for the second menu
 def deepfake_image_detector_menu(detector):
     st.title("Image Deepfake Detector")
     st.write("Upload an image, and the AI will classify it as **Real** or **Fake**.")
@@ -262,6 +261,9 @@ def ai_text_detector_menu(detector):
                 unsafe_allow_html=True)
         else:
             st.error("Please enter or upload some text before classifying.")
+
+
+            
 
 # Cache the model loading using the updated paths
 @st.cache_resource
