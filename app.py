@@ -169,6 +169,16 @@ def deepfake_audio_detector_menu(detector):
         except Exception as e:
             st.error(f"An error occurred while processing the audio file: {e}")
 
+import streamlit as st
+from PIL import Image
+import base64
+
+def image_to_base64(image):
+    from io import BytesIO
+    buffered = BytesIO()
+    image.save(buffered, format="PNG")
+    return base64.b64encode(buffered.getvalue()).decode()
+
 def deepfake_image_detector_menu(detector):
     st.title("Image Deepfake Detector")
     st.write("Upload an image, and the AI will classify it as **Real** or **Fake**.")
@@ -185,7 +195,7 @@ def deepfake_image_detector_menu(detector):
             f"""
             <div style="text-align: center;">
                 <img src="data:image/png;base64,{image_to_base64(image)}" alt="Uploaded Image" width="400"/>
-                <p>Uploaded Image</p>
+                <p><strong>Uploaded Image</strong></p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -194,16 +204,20 @@ def deepfake_image_detector_menu(detector):
         # Make prediction
         predicted_label, confidence = detector.predict(image)
 
-        # Center the prediction and confidence output with your specific formatting
-        color = "green" if predicted_label == "REAL" else "red"  # Determine color based on label
+        # Determine color based on label
+        color = "green" if predicted_label.upper() == "REAL" else "red"
+
+        # Center the prediction and confidence output
         st.markdown(
             f"""
-            <div style="text-align: center;">
-                <h3 style="display: inline-block; margin-left: 20px;">Prediction: <span style="color: {color};">{predicted_label}</span></h3>
-                <p style="display: inline-block; font-size: 20px; margin-left: -5px;">Confidence: {confidence*100:.2f}%</p>
+            <div style="text-align: center; margin-top: 20px;">
+                <h3>Prediction: <span style="color: {color};">{predicted_label.upper()}</span></h3>
+                <p style="font-size: 18px;">Confidence: {confidence * 100:.2f}%</p>
             </div>
             """,
-            unsafe_allow_html=True)
+            unsafe_allow_html=True,
+        )
+
 
 # Function to convert the image to base64 for inline display in HTML
 def image_to_base64(image):
