@@ -28,7 +28,7 @@ def init_streamlit():
     """Initialize Streamlit page configuration and styling"""
     st.set_page_config(
         page_title="VerifAI: Where AI Meets Authentication",
-        page_icon=os.path.join("images", "logo.svg"),  # Path to your SVG icon
+        page_icon=os.path.join("images", "logo.png"),  # Or "logo.ico"
         layout="wide",
         initial_sidebar_state="auto"
     )
