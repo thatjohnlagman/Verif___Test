@@ -151,21 +151,25 @@ def deepfake_audio_detector_menu(detector):
         # Display audio player
         st.audio(uploaded_audio, format="audio/mp3", start_time=0)
 
-        # Make prediction
-        try:
-            predicted_label, confidence = detector.predict_audio_label(temp_audio_path)
+    # Make prediction
+    try:
+        predicted_label, confidence = detector.predict_audio_label(temp_audio_path)
 
-            # Centered display of the result with colored label and confidence percentage
-            st.markdown(
-                f"""
-                <div style="text-align: center;">
-                    <h3 style="display: inline-block; margin-left: 20px;">Prediction: <span style="color: {'green' if predicted_label == 'REAL' else 'red'};">{predicted_label}</span></h3>
-                    <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
-                </div>
-                """,
-                unsafe_allow_html=True)
-        except Exception as e:
-            st.error(f"An error occurred while processing the audio file: {e}")
+        # Convert the output to title case
+        formatted_label = predicted_label.title()
+
+        # Centered display of the result with colored label and confidence percentage
+        st.markdown(
+            f"""
+            <div style="text-align: center;">
+                <h3 style="display: inline-block; margin-left: 20px;">Prediction: <span style="color: {'green' if predicted_label == 'REAL' else 'red'};">{formatted_label}</span></h3>
+                <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
+            </div>
+            """,
+            unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"An error occurred while processing the audio file: {e}")
+
 
 # Streamlit interface for the second menu
 def deepfake_image_detector_menu(detector):
