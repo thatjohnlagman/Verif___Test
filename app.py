@@ -71,87 +71,38 @@ def init_streamlit():
         </style>
     """, unsafe_allow_html=True)
 
+
 def display_navbar():
     """Display the navigation bar with 4 tabs"""
+    # Display the image at the top
+    image_path = os.path.join("images", "1.svg")
+    st.image(image_path, use_container_width=True)
 
-    # Inject custom CSS to force dark mode and style elements
-    st.markdown(
-        """
+    # Center the title and subtitle using HTML and CSS
+    st.markdown("""
+        <div style="text-align: center;">
+            <h1 style="font-size: 2.5em; margin-bottom: 0.1em;">VerifAI: Where AI Meets Authentication</h1>
+            <h3 style="font-weight: normal; color: gray; margin-top: -0.8em; margin-bottom: 0.7em;">Spot fakes and trust with confidence—powered by AI algorithms.</h3>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Inject custom CSS to style the navbar tabs
+    st.markdown("""
         <style>
-            /* Force dark mode */
-            html, body, [class*="ViewContainer"] {
-                background-color: #0e1117; /* Streamlit's dark mode background color */
-                color: #fafafa; /* Light text color for contrast */
-            }
-
-            /* Set the text color for the title in dark mode */
-            .title-container h1 {
-                color: rgb(255, 255, 255) !important; /* White text */
-            }
-
-            .image-container {
-                text-align: center;
-            }
-
-            .image-container img {
-                max-width: 80%; /* Adjust as needed */
-            }
-
-            /* Styling for the title and subtitle */
-            .title-container {
-                text-align: center;
-            }
-
-            .title-container h1 {
-                font-size: 2.5em;
-                margin-bottom: 0.1em;
-            }
-
-            .title-container h3 {
-                font-weight: normal;
-                color: gray;
-                margin-top: -0.8em;
-                margin-bottom: 0.7em;
-            }
-
             /* Increase the font size of the tab titles */
             .stTabs [role="tab"] {
                 font-size: 1.5em !important;
                 font-weight: bold !important;
             }
-
-            /* Set desired color for the navbar text */
-            .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
-                color: #ff4500
-            }
         </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    # Use the dark mode image
-    image_path = os.path.join("images", "1.svg")  # Correct path to your dark mode image
-    st.image(image_path, use_container_width=True)
-
-    # Center the title and subtitle using HTML and CSS
-    st.markdown(
-        f"""
-        <div class="title-container">
-            <h1 style="color: {text_color};">VerifAI: Where AI Meets Authentication</h1>
-            <h3>Spot fakes and trust with confidence—powered by AI algorithms.</h3>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    """, unsafe_allow_html=True)
 
     # Navbar for navigation between models
     tab1, tab2, tab3, tab4 = st.tabs(
-        [
-            "Deepfake Audio Detector",
-            "Deepfake Image Detector",
-            "AI Text Detector",
-            "Phishing Link Detector",
-        ]
+        ["Deepfake Audio Detector",
+         "Deepfake Image Detector",
+         "AI Text Detector",
+         "Phishing Link Detector"]
     )
 
     return tab1, tab2, tab3, tab4
