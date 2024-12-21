@@ -1,3 +1,5 @@
+import streamlit as st
+from PIL import Image
 import librosa
 import librosa.display
 import numpy as np
@@ -5,30 +7,51 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 import os
-from PIL import Image
+import soundfile as sf  # Import soundfile
 import torch
-from transformers import AutoFeatureExtractor, AutoModelForImageClassification, AutoConfig
-from transformers import DistilBertTokenizer, DistilBertForSequenceClassification, DistilBertConfig
+from transformers import AutoFeatureExtractor, AutoModelForImageClassification
+from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
 import torch.nn.functional as F
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoConfig
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 class DeepfakeImageDetector:
     def __init__(self, model_dir, label_map):
-        config = AutoConfig.from_pretrained(model_dir)
+        """
+        Initialize the detector with a model directory and label mapping.
+
+        Args:
+        - model_dir (str): Path to the pretrained model directory.
+        - label_map (dict): Mapping of label IDs to human-readable labels.
+        """
         self.feature_extractor = AutoFeatureExtractor.from_pretrained(model_dir)
-        self.model = AutoModelForImageClassification.from_config(config)
+        self.model = AutoModelForImageClassification.from_pretrained(model_dir)
         self.label_map = label_map
 
-        state_dict = torch.load(os.path.join(model_dir, "pytorch_model.bin"), map_location="cpu")
-        self.model.load_state_dict(state_dict)
-        self.model.eval()
-
     def preprocess_image(self, image):
+        """
+        Preprocess the uploaded image for the model.
+
+        Args:
+        - image (PIL.Image): The input image to preprocess.
+
+        Returns:
+        - dict: Preprocessed image tensor ready for the model.
+        """
         image = image.convert("RGB")
         inputs = self.feature_extractor(images=image, return_tensors="pt")
         return inputs
 
     def predict(self, image):
+        """
+        Predict if the image is Real or Fake.
+
+        Args:
+        - image (PIL.Image): The input image to classify.
+
+        Returns:
+        - str: Predicted label (e.g., "Real" or "Fake").
+        - float: Confidence score for the prediction.
+        """
         inputs = self.preprocess_image(image)
         with torch.no_grad():
             outputs = self.model(**inputs)
@@ -44,7 +67,7 @@ class AITextDetector:
         self.max_length = max_length
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        # Load the tokenizer and model from the local directory
+        # Load the tokenizer and model
         self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
         self.model = AutoModelForSequenceClassification.from_pretrained(model_dir)
         self.model.to(self.device)
@@ -153,17 +176,9 @@ class DeepfakeAudioDetector:
 
 class PhishingDetector:
     def __init__(self, model_path, tokenizer_path):
-        # Load the tokenizer
-        self.tokenizer = DistilBertTokenizer.from_pretrained(tokenizer_path)
-
-        # Load the model configuration
-        config = DistilBertConfig.from_pretrained(model_path)
-        self.model = DistilBertForSequenceClassification.from_config(config)
-
-        # Load the model's state_dict
-        state_dict = torch.load(os.path.join(model_path, "pytorch_model.bin"), map_location="cpu")
-        self.model.load_state_dict(state_dict)
-        self.model.eval()
+        # Load the tokenizer and model
+        self.tokenizer = DistilBertTokenizer.from_pretrained(model_path)
+        self.model = DistilBertForSequenceClassification.from_pretrained(model_path)
 
     def check_link_validity(self, link):
         # Tokenize the input link text
