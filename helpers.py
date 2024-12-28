@@ -175,45 +175,36 @@ class DeepfakeAudioDetector:
         return label, confidence
 
 class PhishingDetector:
-    def __init__(self, model_folder_path):
-        # Use CPU
-        self.device = torch.device("cpu")
-        
-        # Load tokenizer and model
-        self.tokenizer = DistilBertTokenizer.from_pretrained(model_folder_path)
-        self.model = DistilBertForSequenceClassification.from_pretrained(model_folder_path)
+    def __init__(self, model_path):
+        """
+        Initializes the PhishingDetector with the model and tokenizer.
 
-        # Move model to CPU and set eval mode
+        Args:
+            model_path (str): Path to the directory containing the model and tokenizer files.
+        """
+        self.device = torch.device("cpu")
+        self.tokenizer = DistilBertTokenizer.from_pretrained(model_path)
+        self.model = DistilBertForSequenceClassification.from_pretrained(model_path)
         self.model.to(self.device)
         self.model.eval()
 
-    def check_link_validity(self, link: str):
-        """
-        Classify whether a link is SAFE or DANGEROUS using the new DistilBERT model.
-        Returns label ("SAFE"/"DANGEROUS") and a float confidence.
-        """
-
-        # Tokenize the input link
-        inputs = self.tokenizer(
-            link,
-            truncation=True,
-            padding='max_length',
-            max_length=64,   # Adjust as needed
-            return_tensors='pt'
-        )
+    def classify_link(self, link: str) -> (str, float):
+        inputs = self.tokenizer(link, truncation=True, padding='max_length', max_length=64, return_tensors='pt')
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
-        # Inference
         with torch.no_grad():
             outputs = self.model(**inputs)
         logits = outputs.logits
 
-        # Get probabilities
         probs = F.softmax(logits, dim=1)
         predicted_class = torch.argmax(probs, dim=1).item()
         confidence = probs[0, predicted_class].item()
+        classification = "DANGEROUS" if predicted_class == 1 else "SAFE"
 
-        # DistilBERT: class 0 => "SAFE", class 1 => "DANGEROUS"
-        label = "SAFE" if predicted_class == 0 else "DANGEROUS"
+        return classification, confidence
 
-        return label, confidence
+    def check_link_validity(self, link):
+        """
+        Wrapper for classify_link to maintain compatibility with Streamlit app.
+        """
+        return self.classify_link(link)
