@@ -105,7 +105,7 @@ def display_navbar():
 
     return tab1, tab2, tab3, tab4
 
-def phishing_detection_navbar():
+def phishing_detection_navbar(phishing_detector):
     st.title("Phishing Detection")
     st.write("Enter a URL and the model will classify it as **SAFE** or **DANGEROUS**.")
 
@@ -115,11 +115,8 @@ def phishing_detection_navbar():
     # Button to trigger prediction
     if st.button("Classify URL"):
         if user_url:  # Ensure there's a URL to classify
-            # Use cached PhishingDetector instance
-            detector = load_phishing_detector()
-            
             # Get prediction and confidence
-            label, confidence = detector.check_link_validity(user_url)
+            label, confidence = phishing_detector.check_link_validity(user_url)
 
             # Display the result with centered text and color-coded prediction
             color = "green" if label == "SAFE" else "red"
@@ -134,6 +131,7 @@ def phishing_detection_navbar():
                 unsafe_allow_html=True)
         else:
             st.error("Please enter a URL to classify.")
+
 
 
 # Streamlit interface for the first menu
