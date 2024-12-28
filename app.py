@@ -134,6 +134,7 @@ def phishing_detection_navbar(phishing_detector):
 
 
 
+
 # Streamlit interface for the first menu
 def deepfake_audio_detector_menu(detector):
     st.title("Audio Deepfake Detector")
@@ -273,12 +274,12 @@ def ai_text_detector_menu(detector):
         else:
             st.error("Please enter or upload some text before classifying.")
 
-# Cache the model loading using the updated paths
 @st.cache_resource
 def load_phishing_detector():
     import os
     model_path = os.path.join("models", "phishing_detection")
     return helpers.PhishingDetector(model_path)
+
 
 
 @st.cache_resource
