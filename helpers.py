@@ -175,28 +175,45 @@ class DeepfakeAudioDetector:
         return label, confidence
 
 class PhishingDetector:
-    def __init__(self, model_path, tokenizer_path):
-        # Load the tokenizer and model
-        self.tokenizer = DistilBertTokenizer.from_pretrained(model_path)
-        self.model = DistilBertForSequenceClassification.from_pretrained(model_path)
+    def __init__(self, model_folder_path):
+        # Use CPU
+        self.device = torch.device("cpu")
+        
+        # Load tokenizer and model
+        self.tokenizer = DistilBertTokenizer.from_pretrained(model_folder_path)
+        self.model = DistilBertForSequenceClassification.from_pretrained(model_folder_path)
 
-    def check_link_validity(self, link):
-        # Tokenize the input link text
-        inputs = self.tokenizer(link, return_tensors="pt", truncation=True, padding=True, max_length=512)
+        # Move model to CPU and set eval mode
+        self.model.to(self.device)
+        self.model.eval()
 
-        # Get predictions from the model
+    def check_link_validity(self, link: str):
+        """
+        Classify whether a link is SAFE or DANGEROUS using the new DistilBERT model.
+        Returns label ("SAFE"/"DANGEROUS") and a float confidence.
+        """
+
+        # Tokenize the input link
+        inputs = self.tokenizer(
+            link,
+            truncation=True,
+            padding='max_length',
+            max_length=64,   # Adjust as needed
+            return_tensors='pt'
+        )
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+
+        # Inference
         with torch.no_grad():
-            logits = self.model(**inputs).logits
+            outputs = self.model(**inputs)
+        logits = outputs.logits
 
-        # Convert logits to probabilities using softmax
-        probs = torch.nn.functional.softmax(logits, dim=-1)
+        # Get probabilities
+        probs = F.softmax(logits, dim=1)
+        predicted_class = torch.argmax(probs, dim=1).item()
+        confidence = probs[0, predicted_class].item()
 
-        # Get the predicted class and confidence
-        predicted_class = torch.argmax(probs, dim=-1).item()
-        confidence = probs[0][predicted_class].item()
-
-        # Map the predicted class to its label (BENIGN or MALWARE)
-        id2label = {0: "BENIGN", 1: "MALWARE"}
-        label = id2label[predicted_class]
+        # DistilBERT: class 0 => "SAFE", class 1 => "DANGEROUS"
+        label = "SAFE" if predicted_class == 0 else "DANGEROUS"
 
         return label, confidence

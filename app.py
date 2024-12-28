@@ -9,7 +9,7 @@ MODEL_FOLDER_ID = {
     "ai_text_detector": "1mqNt-jfusATtUZH8zUpu3nBKFXdIxyM0",
     "deepfake_audio_detection": "1utkXjbyiRlAamdWj3QrsANDxDNF4FgVh",
     "deepfake_image_detector": "1EWSUm5mmhavnX8GsM_7t8ZJ1xtXZA4mb",
-    "phishing_detection": "1bw59K-0Xo1lmp_K-auRjLV_W-ESxEOhJ",
+    "phishing_detection": "1Bhmcb6TPZlDKpBjS8xA4tdz_awtE2eup",
 }
 
 # Function to download model folders from Google Drive if they don't exist
@@ -109,16 +109,19 @@ def phishing_detection_navbar(detector):
     st.title("Phishing Detection")
     st.write("Enter a URL and the model will classify it as **Benign** or **Dangerous**.")
 
-    # Input for URL
     user_url = st.text_input("Enter URL:")
 
-    # Button to trigger prediction
     if st.button("Classify URL"):
         if user_url:
-            # Get prediction and confidence
-            label, confidence = detector.check_link_validity(user_url)
+            # Get the new model’s output: "SAFE" or "DANGEROUS"
+            new_label, confidence = detector.check_link_validity(user_url)
+            
+            if new_label == "SAFE":
+                label = "BENIGN"
+            else:
+                label = "MALWARE"
 
-            # Display the result with centered text and color-coded prediction
+            # Keep the rest exactly as you had it (no HTML changes):
             color = "green" if label == "BENIGN" else "red"
             # Update "MALWARE" to "DANGEROUS"
             label = "DANGEROUS" if label == "MALWARE" else label
@@ -130,9 +133,11 @@ def phishing_detection_navbar(detector):
                     <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
                 </div>
                 """,
-                unsafe_allow_html=True)
+                unsafe_allow_html=True
+            )
         else:
             st.error("Please enter a URL to classify.")
+
 
 # Streamlit interface for the first menu
 def deepfake_audio_detector_menu(detector):
