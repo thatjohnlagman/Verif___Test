@@ -99,26 +99,11 @@ def display_navbar():
     tab1, tab2, tab3, tab4 = st.tabs(
         ["Deepfake Audio Detector",
          "Deepfake Image Detector",
-         "Phishing Link Detector",
-         "Extras"]
+         "AI Text Detector",
+         "Phishing Link Detector"]
     )
 
     return tab1, tab2, tab3, tab4
-
-def extras_tab(detector):
-    """Display content for the Extras tab"""
-    st.title("Extras")
-    st.subheader("AI Text Detector (Experimental)")
-
-    # Add disclaimer
-    st.warning(
-        "Disclaimer: The AI Text Detector is in the experimental phase and may not produce accurate results. "
-        "Use it cautiously and consider it as a supplementary tool rather than definitive."
-    )
-
-    # Call the AI Text Detector menu
-    ai_text_detector_menu(detector)
-
 
 def phishing_detection_navbar(phishing_detector):
     st.title("Phishing Detection")
@@ -338,9 +323,9 @@ def main():
     with tab2:
         deepfake_image_detector_menu(image_detector)
     with tab3:
-        phishing_detection_navbar(phishing_detector)
+        ai_text_detector_menu(text_detector)
     with tab4:
-        extras_tab(text_detector)
+        phishing_detection_navbar(phishing_detector)
 
 if __name__ == "__main__":
     main()
