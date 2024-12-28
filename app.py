@@ -110,53 +110,14 @@ def extras_tab(detector):
     st.title("Extras")
     st.subheader("AI Text Detector (Experimental)")
 
-    # Input method and text area
-    st.write("Upload or type a text, and the AI will classify it as Human-generated or AI-generated.")
-    input_choice = st.radio("Choose input method:", ("Type text", "Upload text file"))
-
-    # Initialize user_text to ensure it always has a value
-    user_text = ""
-
-    if input_choice == "Type text":
-        # Adjust the height parameter for the text area
-        user_text = st.text_area("Enter text:", height=450)  # Adjust height (in pixels) here
-    elif input_choice == "Upload text file":
-        uploaded_file = st.file_uploader("Upload a text file", type=["txt"], key="file_uploader_text")
-        if uploaded_file is not None:
-            user_text = uploaded_file.read().decode("utf-8")
-
-    # Disclaimer
+    # Add disclaimer
     st.warning(
         "Disclaimer: The AI Text Detector is in the experimental phase and may not produce accurate results. "
         "Use it cautiously and consider it as a supplementary tool rather than definitive."
     )
 
-    # Button to trigger prediction
-    if st.button("Classify Text"):
-        if user_text:
-            # Make prediction
-            prediction, human_prob, ai_prob = detector.classify_text(user_text)
-
-            # Display the result with centered text and color-coded prediction
-            if prediction == 0:
-                predicted_label = "Human-generated"
-                color = "green"
-                confidence = human_prob
-            else:
-                predicted_label = "AI-generated"
-                color = "red"
-                confidence = ai_prob
-
-            st.markdown(
-                f"""
-                <div style="text-align: center;">
-                    <h3 style="display: inline-block; margin-left: 20px;">Prediction: <span style="color: {color};">{predicted_label}</span></h3>
-                    <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
-                </div>
-                """,
-                unsafe_allow_html=True)
-        else:
-            st.error("Please enter or upload some text before classifying.")
+    # Call the AI Text Detector menu
+    ai_text_detector_menu(detector)
 
 
 def phishing_detection_navbar(phishing_detector):
