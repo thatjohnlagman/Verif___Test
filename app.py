@@ -71,7 +71,7 @@ def init_streamlit():
     """, unsafe_allow_html=True)
 
 def display_navbar():
-    """Display the navigation bar with 4 tabs"""
+    """Display the navigation bar with 3 tabs and a dropdown for AI Text Detector"""
     # Display the image at the top
     image_path = os.path.join("images", "1.svg")
     st.image(image_path, use_container_width=True)
@@ -96,14 +96,22 @@ def display_navbar():
     """, unsafe_allow_html=True)
 
     # Navbar for navigation between models
-    tab1, tab2, tab3, tab4 = st.tabs(
+    tab1, tab2, tab4 = st.tabs(
         ["Deepfake Audio Detector",
          "Deepfake Image Detector",
-         "AI Text Detector",
          "Phishing Link Detector"]
     )
 
-    return tab1, tab2, tab3, tab4
+    # Dropdown for AI Text Detector
+    ai_text_detector_selected = st.selectbox(
+        "AI Text Detector Options",
+        options=["Select Option", "AI Text Detector"],
+        index=0,
+        help="Switch to the AI Text Detector module from here."
+    )
+
+    return tab1, tab2, tab4, ai_text_detector_selected
+
 
 def phishing_detection_navbar(phishing_detector):
     st.title("Phishing Detection")
@@ -322,10 +330,12 @@ def main():
         deepfake_audio_detector_menu(audio_detector)
     with tab2:
         deepfake_image_detector_menu(image_detector)
-    with tab3:
-        ai_text_detector_menu(text_detector)
     with tab4:
         phishing_detection_navbar(phishing_detector)
+
+    # Handle the dropdown selection for AI Text Detector
+    if ai_text_detector_selected == "AI Text Detector":
+        ai_text_detector_menu(text_detector)
 
 if __name__ == "__main__":
     main()
