@@ -135,12 +135,10 @@ def phishing_detection_navbar(phishing_detector):
 
 
 
+# Streamlit interface for the first menu
 def deepfake_audio_detector_menu(detector):
     st.title("Audio Deepfake Detector")
     st.write("Upload an audio file, and the AI will classify it as **Real** or **Fake**.")
-
-    # Initialize temp_audio_path to avoid undefined variable errors
-    temp_audio_path = None
 
     # Upload audio
     uploaded_audio = st.file_uploader("Upload an Audio File", type=["wav", "mp3"])
@@ -154,8 +152,7 @@ def deepfake_audio_detector_menu(detector):
         # Display audio player
         st.audio(uploaded_audio, format="audio/mp3", start_time=0)
 
-    # Make prediction
-    if temp_audio_path:
+        # Make prediction
         try:
             predicted_label, confidence = detector.predict_audio_label(temp_audio_path)
 
@@ -174,6 +171,7 @@ def deepfake_audio_detector_menu(detector):
         except Exception as e:
             st.error(f"An error occurred while processing the audio file: {e}")
     else:
+        # Display a message when no file is uploaded
         st.info("Please upload an audio file to classify.")
 
 
