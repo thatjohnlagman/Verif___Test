@@ -70,8 +70,8 @@ def init_streamlit():
         </style>
     """, unsafe_allow_html=True)
 
-def display_navbar_with_kebab_menu():
-    """Display the navigation bar with 3 tabs and a kebab menu for AI Text Detector"""
+def display_navbar_with_dropdown():
+    """Display the navigation bar with 3 tabs and a dropdown menu as the 4th tab"""
     # Display the image at the top
     image_path = os.path.join("images", "1.svg")
     st.image(image_path, use_container_width=True)
@@ -84,7 +84,7 @@ def display_navbar_with_kebab_menu():
         </div>
     """, unsafe_allow_html=True)
 
-    # Inject custom CSS to style the navbar tabs and kebab menu
+    # Inject custom CSS to style the navbar tabs and dropdown menu
     st.markdown("""
         <style>
             /* Increase the font size of the tab titles */
@@ -93,32 +93,34 @@ def display_navbar_with_kebab_menu():
                 font-weight: bold !important;
             }
 
-            /* Kebab menu styles */
-            .kebab-menu {
-                position: absolute;
-                top: 15px;
-                right: 20px;
-                z-index: 1000;
+            /* Style for the dropdown menu in the navbar */
+            .dropdown-tab {
+                position: relative;
+                display: inline-block;
             }
-            .kebab-menu .dropdown {
+
+            .dropdown-content {
                 display: none;
                 position: absolute;
                 background-color: #ffffff;
-                box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-                padding: 8px;
                 min-width: 160px;
+                box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+                z-index: 1;
                 border-radius: 8px;
             }
-            .kebab-menu:hover .dropdown {
+
+            .dropdown-tab:hover .dropdown-content {
                 display: block;
             }
-            .dropdown a {
-                text-decoration: none;
+
+            .dropdown-content a {
                 color: black;
                 padding: 8px 12px;
+                text-decoration: none;
                 display: block;
             }
-            .dropdown a:hover {
+
+            .dropdown-content a:hover {
                 background-color: #f1f1f1;
             }
         </style>
@@ -131,18 +133,17 @@ def display_navbar_with_kebab_menu():
          "Phishing Link Detector"]
     )
 
-    # Add kebab menu
+    # Create the dropdown menu as the 4th tab
     st.markdown("""
-        <div class="kebab-menu">
-            <span>⋮</span>
-            <div class="dropdown">
+        <div class="dropdown-tab" style="margin-left: 20px; display: inline-block;">
+            <button style="font-size: 1.5em; background: none; border: none; cursor: pointer;">⋮</button>
+            <div class="dropdown-content">
                 <a href="#ai-text-detector">AI Text Detector</a>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
     return tab1, tab2, tab3
-
 
 
 def phishing_detection_navbar(phishing_detector):
@@ -349,8 +350,8 @@ def main():
     # Download models if they don't exist locally
     download_models(MODEL_FOLDER_ID)
 
-    # Display navbar with kebab menu
-    tab1, tab2, tab3 = display_navbar_with_kebab_menu()
+    # Display navbar with dropdown menu
+    tab1, tab2, tab3 = display_navbar_with_dropdown()
 
     # Load the models using the caching functions (do this after downloading)
     audio_detector = load_audio_detector()
@@ -367,9 +368,8 @@ def main():
 
     # Add a section for AI Text Detector when the kebab menu is clicked
     st.markdown('<div id="ai-text-detector"></div>', unsafe_allow_html=True)
-    if st.session_state.get("show_ai_text_detector", False):
-        st.title("AI Text Detector")
-        ai_text_detector_menu(text_detector)
-        
+    st.title("AI Text Detector")
+    ai_text_detector_menu(text_detector)
+
 if __name__ == "__main__":
     main()
