@@ -318,7 +318,7 @@ def main():
     download_models(MODEL_FOLDER_ID)
 
     # Display navbar and tabs
-    tab1, tab2, tab3, tab4 = display_navbar()
+    tab1, tab2, tab4, ai_text_detector_selected = display_navbar()
 
     # Load the models using the caching functions (do this after downloading)
     audio_detector = load_audio_detector()
@@ -336,6 +336,7 @@ def main():
     # Handle the dropdown selection for AI Text Detector
     if ai_text_detector_selected == "AI Text Detector":
         ai_text_detector_menu(text_detector)
+
 
 if __name__ == "__main__":
     main()
