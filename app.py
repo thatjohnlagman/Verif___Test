@@ -70,8 +70,8 @@ def init_streamlit():
         </style>
     """, unsafe_allow_html=True)
 
-def display_navbar():
-    """Display the navigation bar with 3 tabs and a dropdown for AI Text Detector"""
+def display_navbar_with_dropdown():
+    """Display the navigation bar with 3 tabs and a dropdown menu for AI Text Detector"""
     # Display the image at the top
     image_path = os.path.join("images", "1.svg")
     st.image(image_path, use_container_width=True)
@@ -84,7 +84,7 @@ def display_navbar():
         </div>
     """, unsafe_allow_html=True)
 
-    # Inject custom CSS to style the navbar tabs
+    # Inject custom CSS to style the navbar tabs and dropdown
     st.markdown("""
         <style>
             /* Increase the font size of the tab titles */
@@ -92,25 +92,53 @@ def display_navbar():
                 font-size: 1.5em !important;
                 font-weight: bold !important;
             }
+            /* Style for the dropdown */
+            .dropdown {
+                position: relative;
+                display: inline-block;
+            }
+            .dropdown-content {
+                display: none;
+                position: absolute;
+                background-color: #f9f9f9;
+                min-width: 160px;
+                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                z-index: 1;
+            }
+            .dropdown:hover .dropdown-content {
+                display: block;
+            }
+            .dropdown-content a {
+                color: black;
+                padding: 12px 16px;
+                text-decoration: none;
+                display: block;
+            }
+            .dropdown-content a:hover {
+                background-color: #f1f1f1;
+            }
         </style>
     """, unsafe_allow_html=True)
 
     # Navbar for navigation between models
-    tab1, tab2, tab4 = st.tabs(
+    tab1, tab2, tab3 = st.tabs(
         ["Deepfake Audio Detector",
          "Deepfake Image Detector",
          "Phishing Link Detector"]
     )
 
-    # Dropdown for AI Text Detector
-    ai_text_detector_selected = st.selectbox(
-        "AI Text Detector Options",
-        options=["Select Option", "AI Text Detector"],
-        index=0,
-        help="Switch to the AI Text Detector module from here."
-    )
+    # Add a dropdown menu in the navbar
+    st.markdown("""
+        <div class="dropdown" style="text-align:right; margin-top: -60px; margin-right: 20px;">
+            <span>☰ Menu</span>
+            <div class="dropdown-content">
+                <a href="#ai-text-detector">AI Text Detector</a>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
-    return tab1, tab2, tab4, ai_text_detector_selected
+    return tab1, tab2, tab3
+
 
 
 def phishing_detection_navbar(phishing_detector):
@@ -317,8 +345,8 @@ def main():
     # Download models if they don't exist locally
     download_models(MODEL_FOLDER_ID)
 
-    # Display navbar and tabs
-    tab1, tab2, tab4, ai_text_detector_selected = display_navbar()
+    # Display navbar with dropdown
+    tab1, tab2, tab3 = display_navbar_with_dropdown()
 
     # Load the models using the caching functions (do this after downloading)
     audio_detector = load_audio_detector()
@@ -330,13 +358,13 @@ def main():
         deepfake_audio_detector_menu(audio_detector)
     with tab2:
         deepfake_image_detector_menu(image_detector)
-    with tab4:
+    with tab3:
         phishing_detection_navbar(phishing_detector)
 
-    # Handle the dropdown selection for AI Text Detector
-    if ai_text_detector_selected == "AI Text Detector":
-        ai_text_detector_menu(text_detector)
-
+    # Add a section for AI Text Detector when the dropdown is clicked
+    st.markdown('<div id="ai-text-detector"></div>', unsafe_allow_html=True)
+    st.title("AI Text Detector")
+    ai_text_detector_menu(text_detector)
 
 if __name__ == "__main__":
     main()
