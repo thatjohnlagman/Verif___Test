@@ -13,6 +13,10 @@ from transformers import AutoFeatureExtractor, AutoModelForImageClassification
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import pickle
+import string
+from nltk.corpus import stopwords
+
 
 class DeepfakeImageDetector:
     def __init__(self, model_dir, label_map):
@@ -62,44 +66,36 @@ class DeepfakeImageDetector:
         return predicted_label, probabilities[predicted_label_id]
 
 class AITextDetector:
-    def __init__(self, model_dir, max_length=128):
-        self.model_dir = model_dir
-        self.max_length = max_length
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+    def __init__(self, model_path):
+        with open(model_path, 'rb') as model_file:
+            self.model = pickle.load(model_file)
+        self.stop_words = set(stopwords.words('english'))
 
-        # Load the tokenizer and model
-        self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_dir)
-        self.model.to(self.device)
-        self.model.eval()
+    def preprocess_text(self, text):
+        # Lowercase
+        text = text.lower()
+        # Remove punctuation
+        text = ''.join([ch for ch in text if ch not in string.punctuation])
+        # Remove stopwords
+        words = text.split()
+        clean_words = [word for word in words if word not in self.stop_words]
+        return ' '.join(clean_words)
 
-    def classify_text(self, text):
-        # Tokenize the input text
-        encoding = self.tokenizer(
-            text,
-            padding='max_length',
-            truncation=True,
-            max_length=self.max_length,
-            return_tensors='pt'
-        )
-
-        # Move tensors to the appropriate device
-        input_ids = encoding['input_ids'].to(self.device)
-        attention_mask = encoding['attention_mask'].to(self.device)
-
-        # Run inference
-        with torch.no_grad():
-            outputs = self.model(input_ids, attention_mask=attention_mask)
-            logits = outputs.logits
-            # Convert logits to probabilities
-            probs = F.softmax(logits, dim=-1).cpu().numpy().flatten()
-
-        # probs is now an array of probabilities for each class.
-        human_prob = probs[0]
-        ai_prob = probs[1]
-
-        # Return the predicted class and probabilities
-        return (0 if ai_prob < 0.5 else 1), human_prob, ai_prob
+    def classify_text(self, input_text):
+        # Preprocess input
+        preprocessed_text = self.preprocess_text(input_text)
+        # Predict label
+        pred = self.model.predict([preprocessed_text])[0]
+        # Predict confidence
+        classifier = self.model.named_steps['classifier']
+        vectorizer = self.model.named_steps['vectorizer']
+        tfidf = self.model.named_steps['tfidf']
+        vectorized_text = vectorizer.transform([preprocessed_text])
+        tfidf_text = tfidf.transform(vectorized_text)
+        pred_prob = classifier.predict_proba(tfidf_text)[0]
+        confidence = np.max(pred_prob)
+        label = "AI-generated" if pred == 1 else "Human-generated"
+        return label, confidence
 
 class DeepfakeAudioDetector:
     def __init__(self, model_path):

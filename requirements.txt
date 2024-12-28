@@ -8,3 +8,5 @@ tensorflow
 soundfile
 torch
 transformers
+nltk
+scikit-learn

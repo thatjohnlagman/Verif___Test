@@ -6,7 +6,7 @@ import gdown
 
 # Google Drive IDs - These should be the IDs of the FOLDERS on Google Drive
 MODEL_FOLDER_ID = {
-    "ai_text_detector": "1mqNt-jfusATtUZH8zUpu3nBKFXdIxyM0",
+    "ai_text_detector": "1N1EkWbTd8S3UiicvNM1eI8dWn21XPH2T",
     "deepfake_audio_detection": "1utkXjbyiRlAamdWj3QrsANDxDNF4FgVh",
     "deepfake_image_detector": "1EWSUm5mmhavnX8GsM_7t8ZJ1xtXZA4mb",
     "phishing_detection": "1Bhmcb6TPZlDKpBjS8xA4tdz_awtE2eup",
@@ -117,8 +117,7 @@ def extras_tab(detector):
     user_text = ""
 
     if input_choice == "Type text":
-        # Adjust the height parameter for the text area
-        user_text = st.text_area("Enter text:", height=450)  # Adjust height (in pixels) here
+        user_text = st.text_area("Enter text:", height=450)
     elif input_choice == "Upload text file":
         uploaded_file = st.file_uploader("Upload a text file", type=["txt"], key="file_uploader_text")
         if uploaded_file is not None:
@@ -127,30 +126,18 @@ def extras_tab(detector):
     # Button to trigger prediction
     if st.button("Classify Text"):
         if user_text:
-            # Make prediction
-            prediction, human_prob, ai_prob = detector.classify_text(user_text)
-
-            # Display the result with centered text and color-coded prediction
-            if prediction == 0:
-                predicted_label = "Human-generated"
-                color = "green"
-                confidence = human_prob
-            else:
-                predicted_label = "AI-generated"
-                color = "red"
-                confidence = ai_prob
-
+            # Make prediction using the new model
+            label, confidence = detector.classify_text(user_text)
             st.markdown(
                 f"""
                 <div style="text-align: center;">
-                    <h3 style="display: inline-block; margin-left: 20px;">Prediction: <span style="color: {color};">{predicted_label}</span></h3>
+                    <h3 style="display: inline-block; margin-left: 20px;">Prediction: <span style="color: {'green' if label == 'Human-generated' else 'red'};">{label}</span></h3>
                     <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
                 </div>
                 """,
                 unsafe_allow_html=True)
         else:
             st.error("Please enter or upload some text before classifying.")
-
 
 
 def phishing_detection_navbar(phishing_detector):
@@ -350,8 +337,8 @@ def load_image_detector():
 
 @st.cache_resource
 def load_text_detector():
-    model_path = os.path.join("models", "ai_text_detector")
-    return helpers.AITextDetector(model_dir=model_path)
+    model_path = os.path.join("models", "ai_text_detector", "ai_text_detector_model.pkl")
+    return helpers.AITextDetector(model_path=model_path)
 
 def main():
     # Initialize Streamlit app
