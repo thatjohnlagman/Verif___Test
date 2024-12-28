@@ -9,7 +9,7 @@ MODEL_FOLDER_ID = {
     "ai_text_detector": "1mqNt-jfusATtUZH8zUpu3nBKFXdIxyM0",
     "deepfake_audio_detection": "1utkXjbyiRlAamdWj3QrsANDxDNF4FgVh",
     "deepfake_image_detector": "1EWSUm5mmhavnX8GsM_7t8ZJ1xtXZA4mb",
-    "phishing_detection": "1bw59K-0Xo1lmp_K-auRjLV_W-ESxEOhJ",
+    "phishing_detection": "1Bhmcb6TPZlDKpBjS8xA4tdz_awtE2eup",
 }
 
 # Function to download model folders from Google Drive if they don't exist
@@ -105,23 +105,24 @@ def display_navbar():
 
     return tab1, tab2, tab3, tab4
 
-def phishing_detection_navbar(detector):
+def phishing_detection_navbar():
     st.title("Phishing Detection")
-    st.write("Enter a URL and the model will classify it as **Benign** or **Dangerous**.")
+    st.write("Enter a URL and the model will classify it as **SAFE** or **DANGEROUS**.")
 
     # Input for URL
     user_url = st.text_input("Enter URL:")
 
     # Button to trigger prediction
     if st.button("Classify URL"):
-        if user_url:
+        if user_url:  # Ensure there's a URL to classify
+            # Use cached PhishingDetector instance
+            detector = load_phishing_detector()
+            
             # Get prediction and confidence
             label, confidence = detector.check_link_validity(user_url)
 
             # Display the result with centered text and color-coded prediction
-            color = "green" if label == "BENIGN" else "red"
-            # Update "MALWARE" to "DANGEROUS"
-            label = "DANGEROUS" if label == "MALWARE" else label
+            color = "green" if label == "SAFE" else "red"
 
             st.markdown(
                 f"""
@@ -129,10 +130,11 @@ def phishing_detection_navbar(detector):
                     <h3 style="display: inline-block; margin-left: 20px;">Prediction: <span style="color: {color};">{label}</span></h3>
                     <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
                 </div>
-                """,
+                """, 
                 unsafe_allow_html=True)
         else:
             st.error("Please enter a URL to classify.")
+
 
 # Streamlit interface for the first menu
 def deepfake_audio_detector_menu(detector):
@@ -276,9 +278,10 @@ def ai_text_detector_menu(detector):
 # Cache the model loading using the updated paths
 @st.cache_resource
 def load_phishing_detector():
+    import os
     model_path = os.path.join("models", "phishing_detection")
-    tokenizer_path = os.path.join("models", "phishing_detection")
-    return helpers.PhishingDetector(model_path, tokenizer_path)
+    return helpers.PhishingDetector(model_path)
+
 
 @st.cache_resource
 def load_audio_detector():

@@ -175,14 +175,25 @@ class DeepfakeAudioDetector:
         return label, confidence
 
 class PhishingDetector:
-    def __init__(self, model_path, tokenizer_path):
-        # Load the tokenizer and model
+    def __init__(self, model_path):
+        """
+        Initializes the PhishingDetector with a model path that contains both the model and tokenizer.
+        """
+        self.device = torch.device("cpu")
+        
+        # Load the tokenizer and model from the same path
         self.tokenizer = DistilBertTokenizer.from_pretrained(model_path)
         self.model = DistilBertForSequenceClassification.from_pretrained(model_path)
+        self.model.to(self.device)
+        self.model.eval()
 
     def check_link_validity(self, link):
+        """
+        Tokenizes the input link, performs inference, and returns the predicted label and confidence.
+        """
         # Tokenize the input link text
-        inputs = self.tokenizer(link, return_tensors="pt", truncation=True, padding=True, max_length=512)
+        inputs = self.tokenizer(link, truncation=True, padding="max_length", max_length=64, return_tensors="pt")
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
         # Get predictions from the model
         with torch.no_grad():
@@ -195,8 +206,8 @@ class PhishingDetector:
         predicted_class = torch.argmax(probs, dim=-1).item()
         confidence = probs[0][predicted_class].item()
 
-        # Map the predicted class to its label (BENIGN or MALWARE)
-        id2label = {0: "BENIGN", 1: "MALWARE"}
+        # Map the predicted class to its label
+        id2label = {0: "SAFE", 1: "DANGEROUS"}
         label = id2label[predicted_class]
 
         return label, confidence
