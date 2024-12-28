@@ -3,6 +3,9 @@ from PIL import Image
 import os
 import helpers
 import gdown
+import nltk
+nltk.download('stopwords')
+
 
 # Google Drive IDs - These should be the IDs of the FOLDERS on Google Drive
 MODEL_FOLDER_ID = {
@@ -337,7 +340,7 @@ def load_image_detector():
 
 @st.cache_resource
 def load_text_detector():
-    model_path = os.path.join("models", "ai_text_detector", "ai_text_detector_model.pkl")
+    model_path = os.path.join("models", "ai_text_detect", "ai_text_detector_model.pkl")
     return helpers.AITextDetector(model_path=model_path)
 
 def main():
