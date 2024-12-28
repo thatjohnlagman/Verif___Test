@@ -9,7 +9,7 @@ MODEL_FOLDER_ID = {
     "ai_text_detector": "1mqNt-jfusATtUZH8zUpu3nBKFXdIxyM0",
     "deepfake_audio_detection": "1utkXjbyiRlAamdWj3QrsANDxDNF4FgVh",
     "deepfake_image_detector": "1EWSUm5mmhavnX8GsM_7t8ZJ1xtXZA4mb",
-    "phishing_detection": "1Bhmcb6TPZlDKpBjS8xA4tdz_awtE2eup",
+    "phishing_detection": "1bw59K-0Xo1lmp_K-auRjLV_W-ESxEOhJ",
 }
 
 # Function to download model folders from Google Drive if they don't exist
@@ -112,13 +112,17 @@ def phishing_detection_navbar(detector):
     # Input for URL
     user_url = st.text_input("Enter URL:")
 
+    # Button to trigger prediction
     if st.button("Classify URL"):
         if user_url:
-            # Get prediction and confidence - using the updated method
+            # Get prediction and confidence
             label, confidence = detector.check_link_validity(user_url)
 
-            # Display the result - adjusted for SAFE/DANGEROUS
-            color = "green" if label == "SAFE" else "red"
+            # Display the result with centered text and color-coded prediction
+            color = "green" if label == "BENIGN" else "red"
+            # Update "MALWARE" to "DANGEROUS"
+            label = "DANGEROUS" if label == "MALWARE" else label
+
             st.markdown(
                 f"""
                 <div style="text-align: center;">
@@ -273,7 +277,8 @@ def ai_text_detector_menu(detector):
 @st.cache_resource
 def load_phishing_detector():
     model_path = os.path.join("models", "phishing_detection")
-    return PhishingDetector(model_path)
+    tokenizer_path = os.path.join("models", "phishing_detection")
+    return helpers.PhishingDetector(model_path, tokenizer_path)
 
 @st.cache_resource
 def load_audio_detector():

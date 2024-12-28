@@ -175,36 +175,28 @@ class DeepfakeAudioDetector:
         return label, confidence
 
 class PhishingDetector:
-    def __init__(self, model_path):
-        """
-        Initializes the PhishingDetector with the model and tokenizer.
-
-        Args:
-            model_path (str): Path to the directory containing the model and tokenizer files.
-        """
-        self.device = torch.device("cpu")
+    def __init__(self, model_path, tokenizer_path):
+        # Load the tokenizer and model
         self.tokenizer = DistilBertTokenizer.from_pretrained(model_path)
         self.model = DistilBertForSequenceClassification.from_pretrained(model_path)
-        self.model.to(self.device)
-        self.model.eval()
-
-    def classify_link(self, link: str) -> (str, float):
-        inputs = self.tokenizer(link, truncation=True, padding='max_length', max_length=64, return_tensors='pt')
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}
-
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-        logits = outputs.logits
-
-        probs = F.softmax(logits, dim=1)
-        predicted_class = torch.argmax(probs, dim=1).item()
-        confidence = probs[0, predicted_class].item()
-        classification = "DANGEROUS" if predicted_class == 1 else "SAFE"
-
-        return classification, confidence
 
     def check_link_validity(self, link):
-        """
-        Wrapper for classify_link to maintain compatibility with Streamlit app.
-        """
-        return self.classify_link(link)
+        # Tokenize the input link text
+        inputs = self.tokenizer(link, return_tensors="pt", truncation=True, padding=True, max_length=512)
+
+        # Get predictions from the model
+        with torch.no_grad():
+            logits = self.model(**inputs).logits
+
+        # Convert logits to probabilities using softmax
+        probs = torch.nn.functional.softmax(logits, dim=-1)
+
+        # Get the predicted class and confidence
+        predicted_class = torch.argmax(probs, dim=-1).item()
+        confidence = probs[0][predicted_class].item()
+
+        # Map the predicted class to its label (BENIGN or MALWARE)
+        id2label = {0: "BENIGN", 1: "MALWARE"}
+        label = id2label[predicted_class]
+
+        return label, confidence
