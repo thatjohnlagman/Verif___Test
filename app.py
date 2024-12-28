@@ -340,7 +340,7 @@ def load_image_detector():
 
 @st.cache_resource
 def load_text_detector():
-    model_path = os.path.join("models", "ai_text_detect", "ai_text_detector_model.pkl")
+    model_path = os.path.join("models", "ai_text_detector", "ai_text_detector_model.pkl")
     return helpers.AITextDetector(model_path=model_path)
 
 def main():
