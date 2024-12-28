@@ -135,10 +135,12 @@ def phishing_detection_navbar(phishing_detector):
 
 
 
-# Streamlit interface for the first menu
 def deepfake_audio_detector_menu(detector):
     st.title("Audio Deepfake Detector")
     st.write("Upload an audio file, and the AI will classify it as **Real** or **Fake**.")
+
+    # Initialize temp_audio_path to avoid undefined variable errors
+    temp_audio_path = None
 
     # Upload audio
     uploaded_audio = st.file_uploader("Upload an Audio File", type=["wav", "mp3"])
@@ -153,23 +155,27 @@ def deepfake_audio_detector_menu(detector):
         st.audio(uploaded_audio, format="audio/mp3", start_time=0)
 
     # Make prediction
-    try:
-        predicted_label, confidence = detector.predict_audio_label(temp_audio_path)
+    if temp_audio_path:
+        try:
+            predicted_label, confidence = detector.predict_audio_label(temp_audio_path)
 
-        # Convert the output to title case
-        formatted_label = predicted_label.title()
+            # Convert the output to title case
+            formatted_label = predicted_label.title()
 
-        # Centered display of the result with colored label and confidence percentage
-        st.markdown(
-            f"""
-            <div style="text-align: center;">
-                <h3 style="display: inline-block; margin-left: 20px;">Prediction: <span style="color: {'green' if predicted_label == 'REAL' else 'red'};">{formatted_label}</span></h3>
-                <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
-            </div>
-            """,
-            unsafe_allow_html=True)
-    except Exception as e:
-        st.error(f"An error occurred while processing the audio file: {e}")
+            # Centered display of the result with colored label and confidence percentage
+            st.markdown(
+                f"""
+                <div style="text-align: center;">
+                    <h3 style="display: inline-block; margin-left: 20px;">Prediction: <span style="color: {'green' if predicted_label == 'REAL' else 'red'};">{formatted_label}</span></h3>
+                    <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
+                </div>
+                """,
+                unsafe_allow_html=True)
+        except Exception as e:
+            st.error(f"An error occurred while processing the audio file: {e}")
+    else:
+        st.info("Please upload an audio file to classify.")
+
 
 
 # Streamlit interface for the second menu
