@@ -6,6 +6,7 @@ import gdown
 import nltk
 nltk.download('stopwords')
 
+#  Google Drive folder model IDs for AI detectors
 MODEL_FOLDER_ID = {
     "ai_text_detector": "1N1EkWbTd8S3UiicvNM1eI8dWn21XPH2T",
     "deepfake_audio_detection": "1utkXjbyiRlAamdWj3QrsANDxDNF4FgVh",
@@ -13,6 +14,7 @@ MODEL_FOLDER_ID = {
     "phishing_detection": "1Bhmcb6TPZlDKpBjS8xA4tdz_awtE2eup",
 }
 
+# Google Drive folder IDs for test files
 IMAGE_TEST_FILES_FOLDER_ID = "10_ElyRhMRkV2sDXRt3JeBwLOadRXhsZY"
 AUDIO_TEST_FILES_FOLDER_ID = "1X0Dl4o2Ecd5Aez3OPecs0ASeCeCzkQG-"
 
@@ -23,8 +25,9 @@ def download_models(model_folder_ids):
         if not os.path.exists(model_path):
             os.makedirs(model_path, exist_ok=True)
             print(f"Downloading {model_name} model from Google Drive...")
-            gdown.download_folder(id=folder_id, output=model_path, quiet=False)
-
+            gdown.download_folder(id=folder_id, output=model_path, quiet=False)\
+        
+        # Specific verification for the AI text detector model
         if model_name == "ai_text_detector":
             expected_file = "ai_text_detector_model.pkl"
             model_file = os.path.join(model_path, expected_file)
@@ -38,6 +41,7 @@ def download_models(model_folder_ids):
 
         print(f"Contents of {model_path}: {os.listdir(model_path)}")
 
+# Initialize Streamlit with custom settings
 def init_streamlit():
     st.set_page_config(
         page_title="VerifAI: Where AI Meets Authentication",
@@ -45,7 +49,8 @@ def init_streamlit():
         layout="wide",
         initial_sidebar_state="auto"
     )
-
+    
+    # Adding custom CSS for styling
     st.markdown("""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
@@ -77,7 +82,9 @@ def init_streamlit():
         </style>
     """, unsafe_allow_html=True)
 
+# Self-created navbar
 def display_navbar():
+    # VerifAI logo
     image_path = os.path.join("images", "1.svg")
     st.image(image_path, use_container_width=True)
 
@@ -97,6 +104,7 @@ def display_navbar():
         </style>
     """, unsafe_allow_html=True)
 
+    # Tabs for different tools each one is labeled with its purpose respectively
     tab1, tab2, tab3, tab4 = st.tabs(
         ["Deepfake Audio Detector",
          "Deepfake Image Detector",
@@ -106,28 +114,35 @@ def display_navbar():
 
     return tab1, tab2, tab3, tab4
 
+# Experimental AI text detector
 def extras_tab(detector):
     st.title("AI Text Detector (Experimental)")
     st.write("Type your own text, upload a text file, or select from the sample texts to check if it is **Human-generated** or **AI-generated**.")
+    # AI text detectors should be taken with a grain of salt
     st.warning(
         "Disclaimer: The AI Text Detector is in the experimental phase and may not produce accurate results. "
         "Use it cautiously and consider it as a supplementary tool rather than definitive."
     )
+    # Users can select sample texts that are provided for testing
     sample_texts = [
         ("HUMAN-GENERATED", "Yesterday, I walked to the park to clear my head. The air was crisp, and the leaves crunched underfoot. I couldn’t help but feel a sense of nostalgia, remembering how my siblings and I used to play here when we were kids. It’s funny how places can hold so many memories."),
         ("AI-GENERATED", "The park represents a tranquil environment where individuals can contemplate life's deeper meaning and connect with the natural world. The gentle rustling of leaves, combined with the soft caress of a breeze, crafts an atmosphere of relaxation and mental clarity. Parks play a vital role in promoting social interaction, encouraging well-being, and maintaining the ecological balance of urban areas.")
     ]
 
+    # Allowing users to choose input method
     input_choice = st.radio("Choose input method:", ("Type text", "Upload text file", "Select sample text"))
 
     user_text = ""
 
+    # Type
     if input_choice == "Type text":
         user_text = st.text_area("Enter text:", height=300, placeholder="Start typing your text here...")
+    # Upload
     elif input_choice == "Upload text file":
         uploaded_file = st.file_uploader("Upload a text file", type=["txt"], key="file_uploader_text")
         if uploaded_file is not None:
             user_text = uploaded_file.read().decode("utf-8")
+    # Select from sample texts
     elif input_choice == "Select sample text":
         selected_sample = st.selectbox("Select a sample text:", options=[f"{label}: {text[:50]}..." for label, text in sample_texts])
         if selected_sample:
@@ -135,6 +150,7 @@ def extras_tab(detector):
             user_text = next(text for label, text in sample_texts if label == selected_label)
             st.text_area("Selected Sample Text:", value=user_text, height=200, disabled=True)
 
+    # Click to verify
     if st.button("Verify Text"):
         if user_text.strip():
             try:
@@ -159,10 +175,12 @@ def extras_tab(detector):
         else:
             st.error("Please enter, upload, or select some text to verify.")
 
+# Deepfake URL detector
 def phishing_detection_navbar(phishing_detector):
     st.title("Phishing Detection")
     st.write("Enter a URL or select from the sample URLs, and the model will verify it as **SAFE** or **DANGEROUS**.")
 
+    # Users can select sample URLs to test the model
     sample_urls = [
         ("DANGEROUS", "https://míсrоsоft-update-check.net"),
         ("DANGEROUS", "https://fácebook-login.com"),
@@ -173,18 +191,22 @@ def phishing_detection_navbar(phishing_detector):
         ("SAFE", "https://www.omdena.com/")
     ]
 
+    # Input choices 
     input_choice = st.radio("Choose input method:", ("Type your own URL", "Select a sample URL"))
 
     user_url = ""
 
+    # Type
     if input_choice == "Type your own URL":
         user_url = st.text_input("Enter URL:", placeholder="https://www.enter-your-link-here.com")
+    # Select from sample URLs
     elif input_choice == "Select a sample URL":
         selected_sample = st.selectbox("Select a sample URL:", options=[f"{label}: {url}" for label, url in sample_urls])
         if selected_sample:
             user_url = selected_sample.split(": ", 1)[1]
             st.text_input("Selected URL:", value=user_url, disabled=True)
 
+    # Verify the URL
     if st.button("Verify URL"):
         if user_url:
             label, confidence = phishing_detector.check_link_validity(user_url)
@@ -202,14 +224,17 @@ def phishing_detection_navbar(phishing_detector):
         else:
             st.error("Please enter or select a URL to verify.")
 
+# Deepfake audio detector
 def deepfake_audio_detector_menu(detector, test_files):
     st.title("Audio Deepfake Detector")
     st.write("Upload an audio file, or choose from the test files provided, and the AI will verify it as **Real** or **Fake**.")
 
+    # Users can select options to upload, test, or type
     input_choice = st.radio("Choose input method:", ("Upload audio file", "Use test file"))
 
     selected_file_path = None
 
+    # Upload your own audio file
     if input_choice == "Upload audio file":
         uploaded_audio = st.file_uploader("Upload an Audio File", type=["wav", "mp3"], key="audio_upload")
         if uploaded_audio is not None:
@@ -218,6 +243,7 @@ def deepfake_audio_detector_menu(detector, test_files):
                 f.write(uploaded_audio.read())
             st.audio(selected_file_path, format="audio/mp3", start_time=0)
 
+    # Use sample audio files
     elif input_choice == "Use test file":
         test_files_info = test_files["audio_files"]
         test_files_folder = test_files_info["folder"]
@@ -230,6 +256,7 @@ def deepfake_audio_detector_menu(detector, test_files):
 
     classify_audio_key = "classify_audio_upload" if input_choice == "Upload audio file" else "classify_audio_test"
 
+    # Verify
     if st.button("Verify Audio", key=classify_audio_key):
         if selected_file_path:
             try:
@@ -254,15 +281,17 @@ def deepfake_audio_detector_menu(detector, test_files):
         else:
             st.error("Please select or upload an audio file to verify.")
 
-
+# Deepfake image detector
 def deepfake_image_detector_menu(detector, test_files):
     st.title("Image Deepfake Detector")
     st.write("Upload an image file, or choose from the test files provided, and the AI will verify it as **Real** or **Fake**.")
 
+    # Let the user choose how they want to provide input
     input_choice = st.radio("Choose input method:", ("Upload image file", "Use test file"))
 
     selected_file_path = None
 
+    # Uplaod
     if input_choice == "Upload image file":
         uploaded_image = st.file_uploader("Upload an Image File", type=["png", "jpg", "jpeg"])
         if uploaded_image is not None:
@@ -280,6 +309,7 @@ def deepfake_image_detector_menu(detector, test_files):
                 unsafe_allow_html=True,
             )
 
+    # Try using test files
     elif input_choice == "Use test file":
         folder_path = test_files["image_files"]["folder"]
         test_files_list = test_files["image_files"]["files"]
@@ -296,6 +326,7 @@ def deepfake_image_detector_menu(detector, test_files):
                 unsafe_allow_html=True,
             )
 
+    # Verify
     if st.button("Verify Image"):
         if selected_file_path:
             try:
@@ -323,53 +354,17 @@ def deepfake_image_detector_menu(detector, test_files):
         else:
             st.error("Please select or upload an image file to verify.")
 
+# Converts a PIL Image to a Base64-encoded string
 def image_to_base64(image):
     import io
     import base64
 
     buffered = io.BytesIO()
     image.save(buffered, format="PNG")
+    # Returns: (str) The Base64-encoded string representation of the image
     return base64.b64encode(buffered.getvalue()).decode()
 
-def ai_text_detector_menu(detector):
-
-    input_choice = st.radio("Choose input method:", ("Type text", "Upload text file"))
-
-    user_text = ""
-
-    if input_choice == "Type text":
-        user_text = st.text_area("Enter text:", height=450)
-    elif input_choice == "Upload text file":
-        uploaded_file = st.file_uploader(
-            "Upload a text file", type=["txt"], key="file_uploader_text"
-        )
-        if uploaded_file is not None:
-            user_text = uploaded_file.read().decode("utf-8")
-            
-    if st.button("Verify Text"):
-        if user_text:
-            prediction, human_prob, ai_prob = detector.classify_text(user_text)
-
-            if prediction == 0:
-                predicted_label = "Human-generated"
-                color = "green"
-                confidence = human_prob
-            else:
-                predicted_label = "AI-generated"
-                color = "red"
-                confidence = ai_prob
-
-            st.markdown(
-                f"""
-                <div style="text-align: center;">
-                    <h3 style="display: inline-block; margin-left: 20px;">Result: <span style="color: {color};">{predicted_label}</span></h3>
-                    <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
-                </div>
-                """,
-                unsafe_allow_html=True)
-        else:
-            st.error("Please enter or upload some text before verifying.")
-
+# Save to cache to prevent long download times or reloading of models
 @st.cache_resource
 def load_phishing_detector():
     import os
@@ -424,19 +419,28 @@ def preload_test_files():
     }
 
 def main():
+    """
+    Main function to initialize the Streamlit app, load models, 
+    and display the navigation tabs with their respective functionalities.
+    """
     init_streamlit()
 
+    # Download required models to the local directory if not already present
     download_models(MODEL_FOLDER_ID)
 
+    # Preload test files to use in the app for demonstration or testing
     test_files = preload_test_files()
 
+    # Set up navigation tabs for different detection functionalities
     tab1, tab2, tab3, tab4 = display_navbar()
 
+    # Load the pre-trained models for different detection tasks
     audio_detector = load_audio_detector()
     image_detector = load_image_detector()
     text_detector = load_text_detector()
     phishing_detector = load_phishing_detector()
 
+    # Define the content and functionality for each navigation tab
     with tab1:
         deepfake_audio_detector_menu(audio_detector, test_files)
     with tab2:
