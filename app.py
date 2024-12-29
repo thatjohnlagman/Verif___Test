@@ -15,27 +15,31 @@ MODEL_FOLDER_ID = {
     "phishing_detection": "1Bhmcb6TPZlDKpBjS8xA4tdz_awtE2eup",
 }
 
-# Function to download model folders from Google Drive if they don't exist
+
 def download_models(model_folder_ids):
     for model_name, folder_id in model_folder_ids.items():
         model_path = os.path.join("models", model_name)
 
         # Check if the model directory already exists
         if not os.path.exists(model_path):
-            os.makedirs("models", exist_ok=True)  # Create models directory if it doesn't exist
-
+            os.makedirs(model_path, exist_ok=True)  # Create the specific model directory if it doesn't exist
             print(f"Downloading {model_name} model from Google Drive...")
             gdown.download_folder(id=folder_id, output=model_path, quiet=False)
 
-        # Verify the specific file exists (e.g., ai_text_detector_model.pkl)
+        # Verify that the expected model file exists for ai_text_detector
         if model_name == "ai_text_detector":
-            model_file = os.path.join(model_path, "ai_text_detector_model.pkl")
+            expected_file = "ai_text_detector_model.pkl"  # File expected in this folder
+            model_file = os.path.join(model_path, expected_file)
             if not os.path.exists(model_file):
                 raise FileNotFoundError(
-                    f"Model file {model_file} not found after download. Please check the Google Drive structure."
+                    f"Model file {model_file} not found after download. "
+                    f"Ensure the file is available in the Google Drive folder: {folder_id}"
                 )
             else:
-                print(f"{model_file} found and ready to use.")
+                print(f"Verified: {model_file} is ready to use.")
+
+        # Optional: Print contents of the downloaded directory for debugging
+        print(f"Contents of {model_path}: {os.listdir(model_path)}")
 
 
 def init_streamlit():
@@ -351,7 +355,7 @@ def load_image_detector():
 
 @st.cache_resource
 def load_text_detector():
-    model_path = os.path.join("models", "ai_text_detect", "ai_text_detector_model.pkl")
+    model_path = os.path.join("models", "ai_text_detector", "ai_text_detector_model.pkl")
 
     # Verify the file exists
     if not os.path.exists(model_path):
