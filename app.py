@@ -406,8 +406,8 @@ def preload_test_files():
     image_files = [f for f in os.listdir(image_folder) if f.endswith((".png", ".jpg", ".jpeg"))]
 
     return {
-        "audio_files": {"folder": audio_foSlder, "files": audio_files},
-        "image_files": {"folder": image_folder, "files": image_files}
+        "audio_files": {"folder": audio_folder, "files": audio_files},
+        "image_files": {"folder": image_folder, "files": image_files},
     }
 
 
