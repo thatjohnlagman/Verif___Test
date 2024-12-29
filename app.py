@@ -174,28 +174,56 @@ def phishing_detection_navbar(phishing_detector):
     st.title("Phishing Detection")
     st.write("Enter a URL and the model will classify it as **SAFE** or **DANGEROUS**.")
 
-    # Input for URL
-    user_url = st.text_input("Enter URL:")
+    # Input choice: Manual input or choose a sample link
+    input_choice = st.radio("Choose input method:", ("Type your own link", "Use a sample link"))
+
+    # Sample links
+    sample_links = {
+        "[DANGEROUS] https://míсrоsоft-update-check.net": "https://míсrоsоft-update-check.net",
+        "[DANGEROUS] https://fácebook-login.com": "https://fácebook-login.com",
+        "[DANGEROUS] https://аpple-security-check.com": "https://аpple-security-check.com",
+        "[SAFE] https://www.facebook.com/": "https://www.facebook.com/",
+        "[SAFE] https://www.microsoft.com/": "https://www.microsoft.com/",
+        "[SAFE] https://www.apple.com/": "https://www.apple.com/",
+    }
+
+    # Initialize user_url
+    user_url = ""
+
+    if input_choice == "Type your own link":
+        # Input box with placeholder
+        user_url = st.text_input("Enter URL:", placeholder="https://www.enter-your-link-here.com")
+    elif input_choice == "Use a sample link":
+        # Dropdown for sample links
+        selected_sample = st.selectbox("Select a sample link:", options=list(sample_links.keys()))
+        user_url = sample_links[selected_sample]
+
+        # Display the selected sample in the input box
+        st.text_input("Selected URL:", value=user_url, disabled=True)
 
     # Button to trigger prediction
     if st.button("Classify URL"):
         if user_url:  # Ensure there's a URL to classify
-            # Get prediction and confidence
-            label, confidence = phishing_detector.check_link_validity(user_url)
+            try:
+                # Get prediction and confidence
+                label, confidence = phishing_detector.check_link_validity(user_url)
 
-            # Display the result with centered text and color-coded prediction
-            color = "green" if label == "SAFE" else "red"
-
-            st.markdown(
-                f"""
-                <div style="text-align: center;">
-                    <h3 style="display: inline-block; margin-left: 20px;">Prediction: <span style="color: {color};">{label}</span></h3>
-                    <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
-                </div>
-                """, 
-                unsafe_allow_html=True)
+                # Display the result with centered text and color-coded prediction
+                color = "green" if label == "SAFE" else "red"
+                st.markdown(
+                    f"""
+                    <div style="text-align: center;">
+                        <h3>Prediction: <span style="color: {color};">{label}</span></h3>
+                        <p>Confidence: {confidence*100:.2f}%</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+            except Exception as e:
+                st.error(f"An error occurred while processing the URL: {e}")
         else:
-            st.error("Please enter a URL to classify.")
+            st.error("Please enter or select a URL to classify.")
+
 
 
 
