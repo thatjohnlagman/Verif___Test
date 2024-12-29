@@ -24,8 +24,19 @@ def download_models(model_folder_ids):
         if not os.path.exists(model_path):
             os.makedirs("models", exist_ok=True)  # Create models directory if it doesn't exist
 
-            # Download the folder from Google Drive
+            print(f"Downloading {model_name} model from Google Drive...")
             gdown.download_folder(id=folder_id, output=model_path, quiet=False)
+
+        # Verify the specific file exists (e.g., ai_text_detector_model.pkl)
+        if model_name == "ai_text_detector":
+            model_file = os.path.join(model_path, "ai_text_detector_model.pkl")
+            if not os.path.exists(model_file):
+                raise FileNotFoundError(
+                    f"Model file {model_file} not found after download. Please check the Google Drive structure."
+                )
+            else:
+                print(f"{model_file} found and ready to use.")
+
 
 def init_streamlit():
     """Initialize Streamlit page configuration and styling"""
@@ -340,8 +351,17 @@ def load_image_detector():
 
 @st.cache_resource
 def load_text_detector():
-    model_path = os.path.join("models", "ai_text_detector", "ai_text_detector_model.pkl")
+    model_path = os.path.join("models", "ai_text_detect", "ai_text_detector_model.pkl")
+
+    # Verify the file exists
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(
+            f"Model file {model_path} not found. Ensure the file is properly downloaded and placed in the correct directory."
+        )
+
+    print(f"Loading text detector model from {model_path}...")
     return helpers.AITextDetector(model_path=model_path)
+
 
 def main():
     # Initialize Streamlit app
