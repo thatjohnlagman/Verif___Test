@@ -181,7 +181,8 @@ def phishing_detection_navbar(phishing_detector):
         ("DANGEROUS", "https://аpple-security-check.com"),
         ("SAFE", "https://www.facebook.com/"),
         ("SAFE", "https://www.microsoft.com/"),
-        ("SAFE", "https://www.apple.com/")
+        ("SAFE", "https://www.apple.com/"),
+        ("SAFE", "https://www.omdena.com/")
     ]
 
     # Radio button for input method
