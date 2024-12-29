@@ -304,13 +304,19 @@ def deepfake_image_detector_menu(detector, test_files):
                 # Pass the image object to the detector
                 predicted_label, confidence = detector.predict(image)
 
-                # Display the prediction result
-                color = "green" if predicted_label == "REAL" else "red"
+                # Determine color based on label
+                color = "green" if predicted_label.upper() == "REAL" else "red"
+
+                # Center the prediction and confidence output with original styling
                 st.markdown(
                     f"""
                     <div style="text-align: center;">
-                        <h3>Prediction: <span style="color: {color};">{predicted_label.title()}</span></h3>
-                        <p>Confidence: {confidence*100:.2f}%</p>
+                        <h3 style="display: inline-block; margin-left: 30px;">
+                            Prediction: <span style="color: {color};">{predicted_label}</span>
+                        </h3>
+                        <p style="display: inline-block; font-size: 20px; margin-left: -6px;">
+                            Confidence: {confidence*100:.2f}%
+                        </p>
                     </div>
                     """,
                     unsafe_allow_html=True,
