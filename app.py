@@ -235,15 +235,22 @@ def deepfake_audio_detector_menu(detector, test_files):
     if st.button("Classify Audio", key=classify_audio_key) and selected_file_path:
         try:
             predicted_label, confidence = detector.predict_audio_label(selected_file_path)
-            color = "green" if predicted_label == "REAL" else "red"
+            # Determine color based on label
+            color = "green" if predicted_label.upper() == "REAL" else "red"
+
+            # Center the prediction and confidence output with original styling
             st.markdown(
                 f"""
                 <div style="text-align: center;">
-                    <h3>Prediction: <span style="color: {color};">{predicted_label.title()}</span></h3>
-                    <p>Confidence: {confidence*100:.2f}%</p>
+                    <h3 style="display: inline-block; margin-left: 30px;">
+                        Prediction: <span style="color: {color};">{predicted_label}</span>
+                    </h3>
+                    <p style="display: inline-block; font-size: 20px; margin-left: -6px;">
+                        Confidence: {confidence*100:.2f}%
+                    </p>
                 </div>
                 """,
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
         except Exception as e:
             st.error(f"An error occurred while processing the audio file: {e}")
