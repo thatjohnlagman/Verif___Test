@@ -124,17 +124,14 @@ def display_navbar():
     return tab1, tab2, tab3, tab4
 
 def extras_tab(detector):
-    """Display content for the Extras tab"""
+    """Display content for the Extras tab."""
     st.title("Extras")
     st.subheader("AI Text Detector (Experimental)")
 
-    st.write(
-        "Upload or type a text, and the AI will classify it as **Human-generated** or **AI-generated**."
-    )
+    # Display a disclaimer about the experimental feature
     st.warning(
         "Disclaimer: The AI Text Detector is in the experimental phase and may not produce accurate results. "
         "Use it cautiously and consider it as a supplementary tool rather than definitive."
-        "Testing what the hell streamlit"
     )
 
     # Input method and text area
@@ -165,6 +162,7 @@ def extras_tab(detector):
                 unsafe_allow_html=True)
         else:
             st.error("Please enter or upload some text before classifying.")
+
 
 
 def phishing_detection_navbar(phishing_detector):
