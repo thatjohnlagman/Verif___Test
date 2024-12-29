@@ -232,26 +232,30 @@ def deepfake_audio_detector_menu(detector, test_files):
 
     classify_audio_key = "classify_audio_upload" if input_choice == "Upload audio file" else "classify_audio_test"
 
-    if st.button("Verify Audio", key=classify_audio_key) and selected_file_path:
-        try:
-            predicted_label, confidence = detector.predict_audio_label(selected_file_path)
-            color = "green" if predicted_label.upper() == "REAL" else "red"
+    if st.button("Verify Audio", key=classify_audio_key):
+        if selected_file_path:
+            try:
+                predicted_label, confidence = detector.predict_audio_label(selected_file_path)
+                color = "green" if predicted_label.upper() == "REAL" else "red"
 
-            st.markdown(
-                f"""
-                <div style="text-align: center;">
-                    <h3 style="display: inline-block; margin-left: 30px;">
-                        Result: <span style="color: {color};">{predicted_label}</span>
-                    </h3>
-                    <p style="display: inline-block; font-size: 20px; margin-left: -6px;">
-                        Confidence: {confidence*100:.2f}%
-                    </p>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-        except Exception as e:
-            st.error(f"An error occurred while processing the audio file: {e}")
+                st.markdown(
+                    f"""
+                    <div style="text-align: center;">
+                        <h3 style="display: inline-block; margin-left: 30px;">
+                            Result: <span style="color: {color};">{predicted_label}</span>
+                        </h3>
+                        <p style="display: inline-block; font-size: 20px; margin-left: -6px;">
+                            Confidence: {confidence*100:.2f}%
+                        </p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+            except Exception as e:
+                st.error(f"An error occurred while processing the audio file: {e}")
+        else:
+            st.error("Please select or upload an audio file to verify.")
+
 
 def deepfake_image_detector_menu(detector, test_files):
     st.title("Image Deepfake Detector")
