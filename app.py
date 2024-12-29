@@ -295,31 +295,26 @@ def deepfake_image_detector_menu(detector, test_files):
                 unsafe_allow_html=True,
             )
 
-    if st.button("Classify Image"):
-        if selected_file_path:
-            try:
-                # Open the image file
-                image = Image.open(selected_file_path)
+    # Add unique keys for buttons
+    classify_image_key = "classify_image_upload" if input_choice == "Upload image file" else "classify_image_test"
 
-                # Pass the image object to the detector
-                predicted_label, confidence = detector.predict(image)
-
-                # Display the prediction result
-                color = "green" if predicted_label == "REAL" else "red"
-                st.markdown(
-                    f"""
-                    <div style="text-align: center;">
-                        <h3>Prediction: <span style="color: {color};">{predicted_label.title()}</span></h3>
-                        <p>Confidence: {confidence*100:.2f}%</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-            except Exception as e:
-                st.error(f"An error occurred while processing the image file: {e}")
-        else:
-            st.error("Please select or upload an image file to classify.")
-
+    if st.button("Classify Image", key=classify_image_key) and selected_file_path:
+        try:
+            predicted_label, confidence = detector.predict(selected_file_path)
+            color = "green" if predicted_label == "REAL" else "red"
+            st.markdown(
+                f"""
+                <div style="text-align: center;">
+                    <h3>Prediction: <span style="color: {color};">{predicted_label.title()}</span></h3>
+                    <p>Confidence: {confidence*100:.2f}%</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        except Exception as e:
+            st.error(f"An error occurred while processing the image file: {e}")
+    elif st.button("Classify Image", key=f"error_button_{input_choice}"):
+        st.error("Please select or upload an image file to classify.")
 
 
 
@@ -332,7 +327,7 @@ def image_to_base64(image):
     image.save(buffered, format="PNG")
     return base64.b64encode(buffered.getvalue()).decode()
 
-def ai_text_detector_menu(detector):    
+def ai_text_detector_menu(detector):
 
     # Text input for manual typing or file upload
     input_choice = st.radio("Choose input method:", ("Type text", "Upload text file"))
