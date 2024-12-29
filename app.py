@@ -154,10 +154,20 @@ def extras_tab(detector):
 
     if st.button("Classify Text"):
         if user_text.strip():
-            st.write("Input text for classification:", user_text)
             try:
-                prediction, human_prob, ai_prob = detector.classify_text(user_text)
-                st.write("Classification result:", prediction, human_prob, ai_prob)
+                result = detector.classify_text(user_text)
+
+                # Adjust based on the number of returned values
+                if len(result) == 3:
+                    prediction, human_prob, ai_prob = result
+                elif len(result) == 2:
+                    prediction, confidence = result
+                    human_prob = confidence if prediction == 0 else None
+                    ai_prob = confidence if prediction == 1 else None
+                else:
+                    raise ValueError("Unexpected number of values returned by the classifier.")
+
+                # Determine label, color, and confidence
                 if prediction == 0:
                     predicted_label = "Human-generated"
                     color = "green"
@@ -184,6 +194,7 @@ def extras_tab(detector):
                 st.error(f"Error during classification: {e}")
         else:
             st.error("Please enter, upload, or select some text to classify.")
+
 
 
 
