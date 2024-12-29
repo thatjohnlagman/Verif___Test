@@ -353,30 +353,29 @@ def deepfake_image_detector_menu(detector, test_files):
     if st.button("Classify Image"):
         if selected_file_path:
             try:
-                with st.spinner("Analyzing..."):
-                    # Open the image file
-                    image = Image.open(selected_file_path)
+                # Open the image file
+                image = Image.open(selected_file_path)
 
-                    # Pass the image object to the detector
-                    predicted_label, confidence = detector.predict(image)
+                # Pass the image object to the detector
+                predicted_label, confidence = detector.predict(image)
 
-                    # Determine color based on label
-                    color = "green" if predicted_label.upper() == "REAL" else "red"
+                # Determine color based on label
+                color = "green" if predicted_label.upper() == "REAL" else "red"
 
-                    # Center the prediction and confidence output with original styling
-                    st.markdown(
-                        f"""
-                        <div style="text-align: center;">
-                            <h3 style="display: inline-block; margin-left: 30px;">
-                                Result: <span style="color: {color};">{predicted_label}</span>
-                            </h3>
-                            <p style="display: inline-block; font-size: 20px; margin-left: -6px;">
-                                Confidence: {confidence*100:.2f}%
-                            </p>
-                        </div>
-                        """,
-                        unsafe_allow_html=True,
-                    )
+                # Center the prediction and confidence output with original styling
+                st.markdown(
+                    f"""
+                    <div style="text-align: center;">
+                        <h3 style="display: inline-block; margin-left: 30px;">
+                            Result: <span style="color: {color};">{predicted_label}</span>
+                        </h3>
+                        <p style="display: inline-block; font-size: 20px; margin-left: -6px;">
+                            Confidence: {confidence*100:.2f}%
+                        </p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
             except Exception as e:
                 st.error(f"An error occurred while processing the image file: {e}")
         else:
@@ -501,29 +500,45 @@ def main():
     # Initialize Streamlit app
     init_streamlit()
 
-    # Download models if they don't exist locally
-    download_models(MODEL_FOLDER_ID)
+    # Spinner and progress bar during initialization
+    with st.spinner("Initializing application... Please wait."):
+        progress = st.progress(0)
 
-    # Preload test files
-    test_files = preload_test_files()
+        # Download models
+        st.write("Downloading models...")
+        download_models(MODEL_FOLDER_ID)
+        progress.progress(0.3)  # Progress: 30%
+
+        # Preload test files
+        st.write("Preloading test files...")
+        test_files = preload_test_files()
+        progress.progress(0.6)  # Progress: 60%
+
+        # Load models
+        st.write("Loading models...")
+        models = {}
+        loaders = {
+            "Text Detector": load_text_detector,
+            "Image Detector": load_image_detector,
+            "Audio Detector": load_audio_detector,
+            "Phishing Detector": load_phishing_detector,
+        }
+        for i, (name, loader) in enumerate(loaders.items()):
+            st.write(f"Loading {name}...")
+            models[name] = loader()
+            progress.progress(0.6 + (0.4 * (i + 1) / len(loaders)))  # Increment progress
+
+        st.success("All models are loaded! Ready to go 🚀")
 
     # Display navbar and tabs
     tab1, tab2, tab3, tab4 = display_navbar()
 
-    # Load the models using the caching functions (do this after downloading)
-    audio_detector = load_audio_detector()
-    image_detector = load_image_detector()
-    text_detector = load_text_detector()
-    phishing_detector = load_phishing_detector()
-
+    # Access models from the dictionary
     with tab1:
-        deepfake_audio_detector_menu(audio_detector, test_files)
+        deepfake_audio_detector_menu(models["Audio Detector"], test_files)
     with tab2:
-        deepfake_image_detector_menu(image_detector, test_files)
+        deepfake_image_detector_menu(models["Image Detector"], test_files)
     with tab3:
-        phishing_detection_navbar(phishing_detector)
+        phishing_detection_navbar(models["Phishing Detector"])
     with tab4:
-        extras_tab(text_detector)
-
-if __name__ == "__main__":
-    main()
+        extras_tab(models["Text Detector"])
