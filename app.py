@@ -289,6 +289,7 @@ def ai_text_detector_menu(detector):
     st.warning(
         "Disclaimer: The AI Text Detector is in the experimental phase and may not produce accurate results. "
         "Use it cautiously and consider it as a supplementary tool rather than definitive."
+        "Testing what the hell streamlit"
     )
 
     # Text input for manual typing or file upload
