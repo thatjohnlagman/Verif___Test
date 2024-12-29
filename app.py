@@ -252,7 +252,7 @@ def deepfake_audio_detector_menu(detector, test_files):
 
 def deepfake_image_detector_menu(detector, test_files):
     st.title("Image Deepfake Detector")
-    st.write("Upload an image file, or choose from the test files provided, and the AI will classify it as **Real** or **Fake**.")
+    st.write("Upload an image file, or choose from the test files provided, and the AI will classify it as **Real** or **Fake**. Weh")
 
     # Input choice: Upload or select a test file
     input_choice = st.radio("Choose input method:", ("Upload image file", "Use test file"))
