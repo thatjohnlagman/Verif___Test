@@ -295,6 +295,28 @@ def deepfake_image_detector_menu(detector, test_files):
                 unsafe_allow_html=True,
             )
 
+    # Add a unique key for the button based on the input choice
+    button_key = "classify_image_upload" if input_choice == "Upload image file" else "classify_image_test"
+
+    # Classify button with a unique key
+    if st.button("Classify Image", key=button_key) and selected_file_path:
+        try:
+            predicted_label, confidence = detector.predict(selected_file_path)
+            color = "green" if predicted_label == "REAL" else "red"
+            st.markdown(
+                f"""
+                <div style="text-align: center;">
+                    <h3>Prediction: <span style="color: {color};">{predicted_label.title()}</span></h3>
+                    <p>Confidence: {confidence*100:.2f}%</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        except Exception as e:
+            st.error(f"An error occurred while processing the image file: {e}")
+    elif not selected_file_path:
+        st.error("Please select or upload an image file to classify.")
+
     # Add unique keys for buttons
     classify_image_key = "classify_image_upload" if input_choice == "Upload image file" else "classify_image_test"
 
