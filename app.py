@@ -39,7 +39,6 @@ def download_models(model_folder_ids):
         print(f"Contents of {model_path}: {os.listdir(model_path)}")
 
 def init_streamlit():
-    """Initialize Streamlit page configuration and styling"""
     st.set_page_config(
         page_title="VerifAI: Where AI Meets Authentication",
         page_icon=os.path.join("images", "Logo.png"),
@@ -79,7 +78,6 @@ def init_streamlit():
     """, unsafe_allow_html=True)
 
 def display_navbar():
-    """Display the navigation bar with 4 tabs"""
     image_path = os.path.join("images", "1.svg")
     st.image(image_path, use_container_width=True)
 
