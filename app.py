@@ -131,57 +131,50 @@ def extras_tab(detector):
     st.title("AI Text Detector")
     st.write("Type your own text, upload a text file, or select from the sample texts to check if it is **Human-generated** or **AI-generated**.")
 
+    # Sample Texts
     sample_texts = [
         ("HUMAN-GENERATED", "Yesterday, I walked to the park to clear my head. The air was crisp, and the leaves crunched underfoot. I couldn’t help but feel a sense of nostalgia, remembering how my siblings and I used to play here when we were kids. It’s funny how places can hold so many memories."),
         ("AI-GENERATED", "The park represents a tranquil environment where individuals can contemplate life's deeper meaning and connect with the natural world. The gentle rustling of leaves, combined with the soft caress of a breeze, crafts an atmosphere of relaxation and mental clarity. Parks play a vital role in promoting social interaction, encouraging well-being, and maintaining the ecological balance of urban areas.")
     ]
 
+    # Input method selection
     input_choice = st.radio("Choose input method:", ("Type text", "Upload text file", "Select sample text"))
+
+    # Initialize user_text
     user_text = ""
 
     if input_choice == "Type text":
+        # Text area for typing input
         user_text = st.text_area("Enter text:", height=450, placeholder="Start typing your text here...")
     elif input_choice == "Upload text file":
+        # File uploader for uploading a text file
         uploaded_file = st.file_uploader("Upload a text file", type=["txt"], key="file_uploader_text")
         if uploaded_file is not None:
             user_text = uploaded_file.read().decode("utf-8")
     elif input_choice == "Select sample text":
+        # Dropdown for selecting sample text
         selected_sample = st.selectbox("Select a sample text:", options=[f"{label}: {text[:50]}..." for label, text in sample_texts])
         if selected_sample:
+            # Extract the text from the selected sample
             selected_label = selected_sample.split(": ", 1)[0]
             user_text = next(text for label, text in sample_texts if label == selected_label)
+            # Display the selected text in a disabled text area for visibility
             st.text_area("Selected Sample Text:", value=user_text, height=200, disabled=True)
 
+    # Button to trigger prediction
     if st.button("Classify Text"):
-        if user_text.strip():
+        if user_text.strip():  # Ensure there is text to classify
             try:
-                result = detector.classify_text(user_text)
+                # Make prediction using the detector
+                label, confidence = detector.classify_text(user_text)
 
-                # Adjust based on the number of returned values
-                if len(result) == 3:
-                    prediction, human_prob, ai_prob = result
-                elif len(result) == 2:
-                    prediction, confidence = result
-                    human_prob = confidence if prediction == 0 else None
-                    ai_prob = confidence if prediction == 1 else None
-                else:
-                    raise ValueError("Unexpected number of values returned by the classifier.")
-
-                # Determine label, color, and confidence
-                if prediction == 0:
-                    predicted_label = "Human-generated"
-                    color = "green"
-                    confidence = human_prob
-                else:
-                    predicted_label = "AI-generated"
-                    color = "red"
-                    confidence = ai_prob
-
+                # Display the result with the preferred styling
+                color = "green" if label == "Human-generated" else "red"
                 st.markdown(
                     f"""
                     <div style="text-align: center;">
                         <h3 style="display: inline-block; margin-left: 30px;">
-                            Prediction: <span style="color: {color};">{predicted_label}</span>
+                            Prediction: <span style="color: {color};">{label}</span>
                         </h3>
                         <p style="display: inline-block; font-size: 20px; margin-left: -6px;">
                             Confidence: {confidence*100:.2f}%
@@ -194,8 +187,6 @@ def extras_tab(detector):
                 st.error(f"Error during classification: {e}")
         else:
             st.error("Please enter, upload, or select some text to classify.")
-
-
 
 
 
@@ -402,6 +393,50 @@ def image_to_base64(image):
     image.save(buffered, format="PNG")
     return base64.b64encode(buffered.getvalue()).decode()
 
+def ai_text_detector_menu(detector):    
+
+    # Text input for manual typing or file upload
+    input_choice = st.radio("Choose input method:", ("Type text", "Upload text file"))
+
+    # Initialize user_text to ensure it always has a value
+    user_text = ""
+
+    if input_choice == "Type text":
+        # Adjust the height parameter for the text area
+        user_text = st.text_area("Enter text:", height=450)  # Adjust height (in pixels) here
+    elif input_choice == "Upload text file":
+        uploaded_file = st.file_uploader(
+            "Upload a text file", type=["txt"], key="file_uploader_text"
+        )
+        if uploaded_file is not None:
+            user_text = uploaded_file.read().decode("utf-8")
+
+    # Button to trigger prediction
+    if st.button("Classify Text"):
+        if user_text:
+            # Make prediction
+            prediction, human_prob, ai_prob = detector.classify_text(user_text)
+
+            # Display the result with centered text and color-coded prediction
+            if prediction == 0:
+                predicted_label = "Human-generated"
+                color = "green"
+                confidence = human_prob
+            else:
+                predicted_label = "AI-generated"
+                color = "red"
+                confidence = ai_prob
+
+            st.markdown(
+                f"""
+                <div style="text-align: center;">
+                    <h3 style="display: inline-block; margin-left: 20px;">Prediction: <span style="color: {color};">{predicted_label}</span></h3>
+                    <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
+                </div>
+                """,
+                unsafe_allow_html=True)
+        else:
+            st.error("Please enter or upload some text before classifying.")
 
 @st.cache_resource
 def load_phishing_detector():
