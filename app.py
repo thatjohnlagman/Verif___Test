@@ -200,7 +200,7 @@ def phishing_detection_navbar(phishing_detector):
 
 
 
-def deepfake_audio_detector_menu(detector):
+def deepfake_audio_detector_menu(detector, test_files):
     st.title("Audio Deepfake Detector")
     st.write("Upload an audio file, or choose from the test files provided, and the AI will classify it as **Real** or **Fake**.")
 
@@ -210,7 +210,7 @@ def deepfake_audio_detector_menu(detector):
     selected_file_path = None
 
     if input_choice == "Upload audio file":
-        uploaded_audio = st.file_uploader("Upload an Audio File", type=["wav", "mp3"])
+        uploaded_audio = st.file_uploader("Upload an Audio File", type=["wav", "mp3"], key="audio_upload")
         if uploaded_audio is not None:
             # Save uploaded audio temporarily
             selected_file_path = os.path.join("temp_uploaded_audio.mp3")
@@ -219,12 +219,14 @@ def deepfake_audio_detector_menu(detector):
             st.audio(selected_file_path, format="audio/mp3", start_time=0)
 
     elif input_choice == "Use test file":
-        # Download and display test files
-        folder_path = download_test_files(AUDIO_TEST_FILES_FOLDER_ID, "audio_test_files")
-        test_files = [f for f in os.listdir(folder_path) if f.endswith((".wav", ".mp3"))]
-        selected_test_file = st.selectbox("Select a test file:", test_files)
+        # Display preloaded test files
+        test_files_info = test_files["audio_files"]
+        test_files_folder = test_files_info["folder"]
+        test_files_list = test_files_info["files"]
+
+        selected_test_file = st.selectbox("Select a test file:", test_files_list, key="audio_test_select")
         if selected_test_file:
-            selected_file_path = os.path.join(folder_path, selected_test_file)
+            selected_file_path = os.path.join(test_files_folder, selected_test_file)
             st.audio(selected_file_path, format="audio/mp3", start_time=0)
 
     # Add unique keys for buttons
@@ -245,12 +247,10 @@ def deepfake_audio_detector_menu(detector):
             )
         except Exception as e:
             st.error(f"An error occurred while processing the audio file: {e}")
-    elif st.button("Classify Audio", key=f"error_button_{input_choice}"):
-        st.error("Please select or upload an audio file to classify.")
 
 
 
-def deepfake_image_detector_menu(detector):
+def deepfake_image_detector_menu(detector, test_files):
     st.title("Image Deepfake Detector")
     st.write("Upload an image file, or choose from the test files provided, and the AI will classify it as **Real** or **Fake**.")
 
@@ -260,7 +260,7 @@ def deepfake_image_detector_menu(detector):
     selected_file_path = None
 
     if input_choice == "Upload image file":
-        uploaded_image = st.file_uploader("Upload an Image File", type=["png", "jpg", "jpeg"])
+        uploaded_image = st.file_uploader("Upload an Image File", type=["png", "jpg", "jpeg"], key="image_upload")
         if uploaded_image is not None:
             # Save uploaded image temporarily
             selected_file_path = os.path.join("temp_uploaded_image.jpg")
@@ -269,12 +269,14 @@ def deepfake_image_detector_menu(detector):
             st.image(selected_file_path, caption="Uploaded Image", use_column_width=True)
 
     elif input_choice == "Use test file":
-        # Download and display test files
-        folder_path = download_test_files(IMAGE_TEST_FILES_FOLDER_ID, "image_test_files")
-        test_files = [f for f in os.listdir(folder_path) if f.endswith((".png", ".jpg", ".jpeg"))]
-        selected_test_file = st.selectbox("Select a test file:", test_files)
+        # Display preloaded test files
+        test_files_info = test_files["image_files"]
+        test_files_folder = test_files_info["folder"]
+        test_files_list = test_files_info["files"]
+
+        selected_test_file = st.selectbox("Select a test file:", test_files_list, key="image_test_select")
         if selected_test_file:
-            selected_file_path = os.path.join(folder_path, selected_test_file)
+            selected_file_path = os.path.join(test_files_folder, selected_test_file)
             st.image(selected_file_path, caption="Selected Test Image", use_column_width=True)
 
     # Add unique keys for buttons
@@ -295,8 +297,6 @@ def deepfake_image_detector_menu(detector):
             )
         except Exception as e:
             st.error(f"An error occurred while processing the image file: {e}")
-    elif st.button("Classify Image", key=f"error_button_{input_choice}"):
-        st.error("Please select or upload an image file to classify.")
 
 
 # Function to convert the image to base64 for inline display in HTML
@@ -394,12 +394,32 @@ def download_test_files(folder_id, local_folder_name):
         gdown.download_folder(id=folder_id, output=folder_path, quiet=False)
     return folder_path
 
+@st.cache_resource
+def preload_test_files():
+    """Preload test files from Google Drive."""
+    # Audio test files
+    audio_folder = download_test_files(AUDIO_TEST_FILES_FOLDER_ID, "audio_test_files")
+    audio_files = [f for f in os.listdir(audio_folder) if f.endswith((".wav", ".mp3"))]
+
+    # Image test files
+    image_folder = download_test_files(IMAGE_TEST_FILES_FOLDER_ID, "image_test_files")
+    image_files = [f for f in os.listdir(image_folder) if f.endswith((".png", ".jpg", ".jpeg"))]
+
+    return {
+        "audio_files": {"folder": audio_foSlder, "files": audio_files},
+        "image_files": {"folder": image_folder, "files": image_files}
+    }
+
+
 def main():
     # Initialize Streamlit app
     init_streamlit()
 
     # Download models if they don't exist locally
     download_models(MODEL_FOLDER_ID)
+
+    # Preload test files
+    test_files = preload_test_files()
 
     # Display navbar and tabs
     tab1, tab2, tab3, tab4 = display_navbar()
@@ -411,9 +431,9 @@ def main():
     phishing_detector = load_phishing_detector()
 
     with tab1:
-        deepfake_audio_detector_menu(audio_detector)
+        deepfake_audio_detector_menu(audio_detector, test_files)
     with tab2:
-        deepfake_image_detector_menu(image_detector)
+        deepfake_image_detector_menu(image_detector, test_files)
     with tab3:
         phishing_detection_navbar(phishing_detector)
     with tab4:
