@@ -351,7 +351,7 @@ def deepfake_image_detector_menu(detector, test_files):
             )
 
    if st.button("Classify Image"):
-        if selected_file_path:
+    if selected_file_path:
             try:
                 # Centered spinner message
                 spinner_placeholder = st.empty()
