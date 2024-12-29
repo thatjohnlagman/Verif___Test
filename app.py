@@ -136,7 +136,6 @@ def extras_tab(detector):
     st.warning(
         "Disclaimer: The AI Text Detector is in the experimental phase and may not produce accurate results. "
         "Use it cautiously and consider it as a supplementary tool rather than definitive."
-        "Fr fr"
     )
 
     # Initialize user_text to ensure it always has a value
