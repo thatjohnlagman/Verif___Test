@@ -295,11 +295,16 @@ def deepfake_image_detector_menu(detector, test_files):
                 unsafe_allow_html=True,
             )
 
-    # Single button for both cases
     if st.button("Classify Image"):
         if selected_file_path:
             try:
-                predicted_label, confidence = detector.predict(selected_file_path)
+                # Open the image file
+                image = Image.open(selected_file_path)
+
+                # Pass the image object to the detector
+                predicted_label, confidence = detector.predict(image)
+
+                # Display the prediction result
                 color = "green" if predicted_label == "REAL" else "red"
                 st.markdown(
                     f"""
@@ -327,7 +332,7 @@ def image_to_base64(image):
     image.save(buffered, format="PNG")
     return base64.b64encode(buffered.getvalue()).decode()
 
-def ai_text_detector_menu(detector):
+def ai_text_detector_menu(detector):    
 
     # Text input for manual typing or file upload
     input_choice = st.radio("Choose input method:", ("Type text", "Upload text file"))
