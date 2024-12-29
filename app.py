@@ -250,7 +250,7 @@ def deepfake_audio_detector_menu(detector, test_files):
 
 
 
-def deepfake_image_detector_menu(detector, test_files):
+def deepfake_image_detector_menu(detector):
     st.title("Image Deepfake Detector")
     st.write("Upload an image file, or choose from the test files provided, and the AI will classify it as **Real** or **Fake**.")
 
@@ -260,24 +260,40 @@ def deepfake_image_detector_menu(detector, test_files):
     selected_file_path = None
 
     if input_choice == "Upload image file":
-        uploaded_image = st.file_uploader("Upload an Image File", type=["png", "jpg", "jpeg"], key="image_upload")
+        uploaded_image = st.file_uploader("Upload an Image File", type=["png", "jpg", "jpeg"])
         if uploaded_image is not None:
             # Save uploaded image temporarily
             selected_file_path = os.path.join("temp_uploaded_image.jpg")
             with open(selected_file_path, "wb") as f:
                 f.write(uploaded_image.read())
-            st.image(selected_file_path, caption="Uploaded Image", use_column_width=True)
+
+            # Display the uploaded image with fixed width
+            st.markdown(
+                f"""
+                <div style="text-align: center;">
+                    <img src="data:image/png;base64,{image_to_base64(Image.open(selected_file_path))}" alt="Uploaded Image" width="400"/>
+                    <p><strong>Uploaded Image</strong></p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
     elif input_choice == "Use test file":
-        # Display preloaded test files
-        test_files_info = test_files["image_files"]
-        test_files_folder = test_files_info["folder"]
-        test_files_list = test_files_info["files"]
-
-        selected_test_file = st.selectbox("Select a test file:", test_files_list, key="image_test_select")
+        # Display test files with fixed width
+        folder_path = download_test_files(IMAGE_TEST_FILES_FOLDER_ID, "image_test_files")
+        test_files = [f for f in os.listdir(folder_path) if f.endswith((".png", ".jpg", ".jpeg"))]
+        selected_test_file = st.selectbox("Select a test file:", test_files)
         if selected_test_file:
-            selected_file_path = os.path.join(test_files_folder, selected_test_file)
-            st.image(selected_file_path, caption="Selected Test Image", use_column_width=True)
+            selected_file_path = os.path.join(folder_path, selected_test_file)
+            st.markdown(
+                f"""
+                <div style="text-align: center;">
+                    <img src="data:image/png;base64,{image_to_base64(Image.open(selected_file_path))}" alt="Test Image" width="400"/>
+                    <p><strong>Selected Test Image</strong></p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
     # Add unique keys for buttons
     classify_image_key = "classify_image_upload" if input_choice == "Upload image file" else "classify_image_test"
@@ -297,6 +313,9 @@ def deepfake_image_detector_menu(detector, test_files):
             )
         except Exception as e:
             st.error(f"An error occurred while processing the image file: {e}")
+    elif st.button("Classify Image", key=f"error_button_{input_choice}"):
+        st.error("Please select or upload an image file to classify.")
+
 
 
 # Function to convert the image to base64 for inline display in HTML
