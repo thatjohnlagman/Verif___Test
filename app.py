@@ -130,7 +130,11 @@ def display_navbar():
 def extras_tab(detector):
     st.title("AI Text Detector")
     st.write("Type your own text, upload a text file, or select from the sample texts to check if it is **Human-generated** or **AI-generated**.")
-
+    # Display a disclaimer about the experimental feature
+    st.warning(
+        "Disclaimer: The AI Text Detector is in the experimental phase and may not produce accurate results. "
+        "Use it cautiously and consider it as a supplementary tool rather than definitive."
+    )
     # Sample Texts
     sample_texts = [
         ("HUMAN-GENERATED", "Yesterday, I walked to the park to clear my head. The air was crisp, and the leaves crunched underfoot. I couldn’t help but feel a sense of nostalgia, remembering how my siblings and I used to play here when we were kids. It’s funny how places can hold so many memories."),
