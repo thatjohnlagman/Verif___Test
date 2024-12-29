@@ -15,6 +15,10 @@ MODEL_FOLDER_ID = {
     "phishing_detection": "1Bhmcb6TPZlDKpBjS8xA4tdz_awtE2eup",
 }
 
+# Google Drive folder IDs for test files
+IMAGE_TEST_FILES_FOLDER_ID = "10_ElyRhMRkV2sDXRt3JeBwLOadRXhsZY"
+AUDIO_TEST_FILES_FOLDER_ID = "1X0Dl4o2Ecd5Aez3OPecs0ASeCeCzkQG-"
+
 
 def download_models(model_folder_ids):
     for model_name, folder_id in model_folder_ids.items():
@@ -196,89 +200,98 @@ def phishing_detection_navbar(phishing_detector):
 
 
 
-# Streamlit interface for the first menu
 def deepfake_audio_detector_menu(detector):
     st.title("Audio Deepfake Detector")
-    st.write("Upload an audio file, and the AI will classify it as **Real** or **Fake**.")
+    st.write("Upload an audio file, or choose from the test files provided, and the AI will classify it as **Real** or **Fake**.")
 
-    # Upload audio
-    uploaded_audio = st.file_uploader("Upload an Audio File", type=["wav", "mp3"])
+    # Input choice: Upload or select a test file
+    input_choice = st.radio("Choose input method:", ("Upload audio file", "Use test file"))
 
-    if uploaded_audio is not None:
-        # Save the uploaded audio temporarily as .mp3
-        temp_audio_path = os.path.join("temp_uploaded_audio.mp3")  # Save as .mp3
-        with open(temp_audio_path, "wb") as f:
-            f.write(uploaded_audio.read())
+    selected_file_path = None
 
-        # Display audio player
-        st.audio(uploaded_audio, format="audio/mp3", start_time=0)
+    if input_choice == "Upload audio file":
+        uploaded_audio = st.file_uploader("Upload an Audio File", type=["wav", "mp3"])
+        if uploaded_audio is not None:
+            # Save uploaded audio temporarily
+            selected_file_path = os.path.join("temp_uploaded_audio.mp3")
+            with open(selected_file_path, "wb") as f:
+                f.write(uploaded_audio.read())
+            st.audio(selected_file_path, format="audio/mp3", start_time=0)
 
-        # Make prediction
+    elif input_choice == "Use test file":
+        # Download and display test files
+        folder_path = download_test_files(AUDIO_TEST_FILES_FOLDER_ID, "audio_test_files")
+        test_files = [f for f in os.listdir(folder_path) if f.endswith((".wav", ".mp3"))]
+        selected_test_file = st.selectbox("Select a test file:", test_files)
+        if selected_test_file:
+            selected_file_path = os.path.join(folder_path, selected_test_file)
+            st.audio(selected_file_path, format="audio/mp3", start_time=0)
+
+    # Button to classify audio
+    if st.button("Classify Audio") and selected_file_path:
         try:
-            predicted_label, confidence = detector.predict_audio_label(temp_audio_path)
-
-            # Convert the output to title case
-            formatted_label = predicted_label.title()
-
-            # Centered display of the result with colored label and confidence percentage
+            predicted_label, confidence = detector.predict_audio_label(selected_file_path)
+            color = "green" if predicted_label == "REAL" else "red"
             st.markdown(
                 f"""
                 <div style="text-align: center;">
-                    <h3 style="display: inline-block; margin-left: 20px;">Prediction: <span style="color: {'green' if predicted_label == 'REAL' else 'red'};">{formatted_label}</span></h3>
-                    <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
+                    <h3>Prediction: <span style="color: {color};">{predicted_label.title()}</span></h3>
+                    <p>Confidence: {confidence*100:.2f}%</p>
                 </div>
-                """,
-                unsafe_allow_html=True)
+                """, 
+                unsafe_allow_html=True
+            )
         except Exception as e:
             st.error(f"An error occurred while processing the audio file: {e}")
-    else:
-        # Display a message when no file is uploaded
-        st.info("Please upload an audio file to classify.")
+    elif st.button("Classify Audio"):
+        st.error("Please select or upload an audio file to classify.")
 
 
-
-# Streamlit interface for the second menu
 def deepfake_image_detector_menu(detector):
-    st.title("Image Deepfake Detector Helloo")
-    st.write("Upload an image, and the AI will classify it as **Real** or **Fake**.")
+    st.title("Image Deepfake Detector")
+    st.write("Upload an image file, or choose from the test files provided, and the AI will classify it as **Real** or **Fake**.")
 
-    # Upload image
-    uploaded_image = st.file_uploader("Upload an Image", type=["png", "jpg", "jpeg"])
+    # Input choice: Upload or select a test file
+    input_choice = st.radio("Choose input method:", ("Upload image file", "Use test file"))
 
-    if uploaded_image is not None:
-        # Load the image
-        image = Image.open(uploaded_image)
+    selected_file_path = None
 
-        # Center the image preview
-        st.markdown(
-            f"""
-            <div style="text-align: center;">
-                <img src="data:image/png;base64,{image_to_base64(image)}" alt="Uploaded Image" width="400"/>
-                <p><strong>Uploaded Image</strong></p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    if input_choice == "Upload image file":
+        uploaded_image = st.file_uploader("Upload an Image File", type=["png", "jpg", "jpeg"])
+        if uploaded_image is not None:
+            # Save uploaded image temporarily
+            selected_file_path = os.path.join("temp_uploaded_image.jpg")
+            with open(selected_file_path, "wb") as f:
+                f.write(uploaded_image.read())
+            st.image(selected_file_path, caption="Uploaded Image", use_column_width=True)
 
-        # Make prediction
-        predicted_label, confidence = detector.predict(image)
+    elif input_choice == "Use test file":
+        # Download and display test files
+        folder_path = download_test_files(IMAGE_TEST_FILES_FOLDER_ID, "image_test_files")
+        test_files = [f for f in os.listdir(folder_path) if f.endswith((".png", ".jpg", ".jpeg"))]
+        selected_test_file = st.selectbox("Select a test file:", test_files)
+        if selected_test_file:
+            selected_file_path = os.path.join(folder_path, selected_test_file)
+            st.image(selected_file_path, caption="Selected Test Image", use_column_width=True)
 
-        # Determine color based on label
-        color = "green" if predicted_label.upper() == "REAL" else "red"
-
-        # Center the prediction and confidence output with original styling
-        st.markdown(
-            f"""
-            <div style="text-align: center;">
-                <h3 style="display: inline-block; margin-left: 30px;">
-                    Prediction: <span style="color: {color};">{predicted_label}</span>
-                </h3>
-                <p style="display: inline-block; font-size: 20px; margin-left: -6px;">
-                    Confidence: {confidence*100:.2f}%
-                </p>
-            </div>
-            """,
-            unsafe_allow_html=True,
+    # Button to classify image
+    if st.button("Classify Image") and selected_file_path:
+        try:
+            predicted_label, confidence = detector.predict(selected_file_path)
+            color = "green" if predicted_label == "REAL" else "red"
+            st.markdown(
+                f"""
+                <div style="text-align: center;">
+                    <h3>Prediction: <span style="color: {color};">{predicted_label.title()}</span></h3>
+                    <p>Confidence: {confidence*100:.2f}%</p>
+                </div>
+                """, 
+                unsafe_allow_html=True
+            )
+        except Exception as e:
+            st.error(f"An error occurred while processing the image file: {e}")
+    elif st.button("Classify Image"):
+        st.error("Please select or upload an image file to classify."
         )
 
 # Function to convert the image to base64 for inline display in HTML
@@ -366,6 +379,15 @@ def load_text_detector():
     print(f"Loading text detector model from {model_path}...")
     return helpers.AITextDetector(model_path=model_path)
 
+@st.cache_resource
+def download_test_files(folder_id, local_folder_name):
+    """Download test files from Google Drive."""
+    folder_path = os.path.join("models", local_folder_name)
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path, exist_ok=True)
+        print(f"Downloading {local_folder_name} test files from Google Drive...")
+        gdown.download_folder(id=folder_id, output=folder_path, quiet=False)
+    return folder_path
 
 def main():
     # Initialize Streamlit app
