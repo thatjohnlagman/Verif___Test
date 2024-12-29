@@ -162,7 +162,7 @@ def extras_tab(detector):
             st.text_area("Selected Sample Text:", value=user_text, height=200, disabled=True)
 
     # Button to trigger prediction
-    if st.button("Classify Text"):
+    if st.button("Verify Text"):
         if user_text.strip():  # Ensure there is text to classify
             try:
                 # Make prediction using the detector
@@ -186,14 +186,14 @@ def extras_tab(detector):
             except Exception as e:
                 st.error(f"Error during classification: {e}")
         else:
-            st.error("Please enter, upload, or select some text to classify.")
+            st.error("Please enter, upload, or select some text to verify.")
 
 
 
 
 def phishing_detection_navbar(phishing_detector):
     st.title("Phishing Detection")
-    st.write("Enter a URL or select from the sample URLs, and the model will classify it as **SAFE** or **DANGEROUS**.")
+    st.write("Enter a URL or select from the sample URLs, and the model will verify it as **SAFE** or **DANGEROUS**.")
 
     # Sample URLs
     sample_urls = [
@@ -225,7 +225,7 @@ def phishing_detection_navbar(phishing_detector):
             st.text_input("Selected URL:", value=user_url, disabled=True)
 
     # Button to trigger prediction
-    if st.button("Classify URL"):
+    if st.button("Verify URL"):
         if user_url:  # Ensure there's a URL to classify
             # Get prediction and confidence
             label, confidence = phishing_detector.check_link_validity(user_url)
@@ -242,7 +242,7 @@ def phishing_detection_navbar(phishing_detector):
                 """, 
                 unsafe_allow_html=True)
         else:
-            st.error("Please enter or select a URL to classify.")
+            st.error("Please enter or select a URL to verify.")
 
 
 
@@ -250,7 +250,7 @@ def phishing_detection_navbar(phishing_detector):
 
 def deepfake_audio_detector_menu(detector, test_files):
     st.title("Audio Deepfake Detector")
-    st.write("Upload an audio file, or choose from the test files provided, and the AI will classify it as **Real** or **Fake**.")
+    st.write("Upload an audio file, or choose from the test files provided, and the AI will verify it as **Real** or **Fake**.")
 
     # Input choice: Upload or select a test file
     input_choice = st.radio("Choose input method:", ("Upload audio file", "Use test file"))
@@ -280,7 +280,7 @@ def deepfake_audio_detector_menu(detector, test_files):
     # Add unique keys for buttons
     classify_audio_key = "classify_audio_upload" if input_choice == "Upload audio file" else "classify_audio_test"
 
-    if st.button("Classify Audio", key=classify_audio_key) and selected_file_path:
+    if st.button("Verify Audio", key=classify_audio_key) and selected_file_path:
         try:
             predicted_label, confidence = detector.predict_audio_label(selected_file_path)
             # Determine color based on label
@@ -307,7 +307,7 @@ def deepfake_audio_detector_menu(detector, test_files):
 
 def deepfake_image_detector_menu(detector, test_files):
     st.title("Image Deepfake Detector")
-    st.write("Upload an image file, or choose from the test files provided, and the AI will classify it as **Real** or **Fake**.")
+    st.write("Upload an image file, or choose from the test files provided, and the AI will verify it as **Real** or **Fake**.")
 
     # Input choice: Upload or select a test file
     input_choice = st.radio("Choose input method:", ("Upload image file", "Use test file"))
@@ -350,7 +350,7 @@ def deepfake_image_detector_menu(detector, test_files):
                 unsafe_allow_html=True,
             )
 
-    if st.button("Classify Image"):
+    if st.button("Verify Image"):
         if selected_file_path:
             try:
                 # Open the image file
@@ -379,7 +379,7 @@ def deepfake_image_detector_menu(detector, test_files):
             except Exception as e:
                 st.error(f"An error occurred while processing the image file: {e}")
         else:
-            st.error("Please select or upload an image file to classify.")
+            st.error("Please select or upload an image file to verify.")
 
 
 
@@ -412,7 +412,7 @@ def ai_text_detector_menu(detector):
             user_text = uploaded_file.read().decode("utf-8")
 
     # Button to trigger prediction
-    if st.button("Classify Text"):
+    if st.button("Verify Text"):
         if user_text:
             # Make prediction
             prediction, human_prob, ai_prob = detector.classify_text(user_text)
@@ -436,7 +436,7 @@ def ai_text_detector_menu(detector):
                 """,
                 unsafe_allow_html=True)
         else:
-            st.error("Please enter or upload some text before classifying.")
+            st.error("Please enter or upload some text before verifying.")
 
 @st.cache_resource
 def load_phishing_detector():
