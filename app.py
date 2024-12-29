@@ -128,7 +128,7 @@ def display_navbar():
     return tab1, tab2, tab3, tab4
 
 def extras_tab(detector):
-    st.title("AI Text Detector")
+    st.title("AI Text Detector (Experimental)")
     st.write("Type your own text, upload a text file, or select from the sample texts to check if it is **Human-generated** or **AI-generated**.")
     # Display a disclaimer about the experimental feature
     st.warning(
