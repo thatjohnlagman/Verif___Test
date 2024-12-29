@@ -227,8 +227,10 @@ def deepfake_audio_detector_menu(detector):
             selected_file_path = os.path.join(folder_path, selected_test_file)
             st.audio(selected_file_path, format="audio/mp3", start_time=0)
 
-    # Button to classify audio
-    if st.button("Classify Audio") and selected_file_path:
+    # Add unique keys for buttons
+    classify_audio_key = "classify_audio_upload" if input_choice == "Upload audio file" else "classify_audio_test"
+
+    if st.button("Classify Audio", key=classify_audio_key) and selected_file_path:
         try:
             predicted_label, confidence = detector.predict_audio_label(selected_file_path)
             color = "green" if predicted_label == "REAL" else "red"
@@ -238,13 +240,14 @@ def deepfake_audio_detector_menu(detector):
                     <h3>Prediction: <span style="color: {color};">{predicted_label.title()}</span></h3>
                     <p>Confidence: {confidence*100:.2f}%</p>
                 </div>
-                """, 
+                """,
                 unsafe_allow_html=True
             )
         except Exception as e:
             st.error(f"An error occurred while processing the audio file: {e}")
-    elif st.button("Classify Audio"):
+    elif st.button("Classify Audio", key=f"error_button_{input_choice}"):
         st.error("Please select or upload an audio file to classify.")
+
 
 
 def deepfake_image_detector_menu(detector):
@@ -274,8 +277,10 @@ def deepfake_image_detector_menu(detector):
             selected_file_path = os.path.join(folder_path, selected_test_file)
             st.image(selected_file_path, caption="Selected Test Image", use_column_width=True)
 
-    # Button to classify image
-    if st.button("Classify Image") and selected_file_path:
+    # Add unique keys for buttons
+    classify_image_key = "classify_image_upload" if input_choice == "Upload image file" else "classify_image_test"
+
+    if st.button("Classify Image", key=classify_image_key) and selected_file_path:
         try:
             predicted_label, confidence = detector.predict(selected_file_path)
             color = "green" if predicted_label == "REAL" else "red"
@@ -285,14 +290,14 @@ def deepfake_image_detector_menu(detector):
                     <h3>Prediction: <span style="color: {color};">{predicted_label.title()}</span></h3>
                     <p>Confidence: {confidence*100:.2f}%</p>
                 </div>
-                """, 
+                """,
                 unsafe_allow_html=True
             )
         except Exception as e:
             st.error(f"An error occurred while processing the image file: {e}")
-    elif st.button("Classify Image"):
-        st.error("Please select or upload an image file to classify."
-        )
+    elif st.button("Classify Image", key=f"error_button_{input_choice}"):
+        st.error("Please select or upload an image file to classify.")
+
 
 # Function to convert the image to base64 for inline display in HTML
 def image_to_base64(image):
