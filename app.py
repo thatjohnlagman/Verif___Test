@@ -350,57 +350,57 @@ def deepfake_image_detector_menu(detector, test_files):
                 unsafe_allow_html=True,
             )
 
-   if st.button("Classify Image"):
+if st.button("Classify Image"):
     if selected_file_path:
-            try:
-                # Centered spinner message
-                spinner_placeholder = st.empty()
-                spinner_placeholder.markdown(
-                    """
-                    <div style="text-align: center; font-size: 16px; margin-top: 10px;">
-                        <strong>Analyzing... Please wait.</strong>
-                        <div style="margin-top: 10px;">
-                            <div class="spinner-border" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </div>
+        try:
+            # Centered spinner message
+            spinner_placeholder = st.empty()
+            spinner_placeholder.markdown(
+                """
+                <div style="text-align: center; font-size: 16px; margin-top: 10px;">
+                    <strong>Analyzing... Please wait.</strong>
+                    <div style="margin-top: 10px;">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
                         </div>
                     </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
-                # Simulate processing stages
-                with st.spinner():
-                    image = Image.open(selected_file_path)
-                    # Simulate processing time for loading model or predictions
-                    import time
-                    time.sleep(2)  # Replace this with actual model processing
+            # Simulate processing stages
+            with st.spinner():
+                image = Image.open(selected_file_path)
+                # Simulate processing time for loading model or predictions
+                import time
+                time.sleep(2)  # Replace this with actual model processing
 
-                    predicted_label, confidence = detector.predict(image)
+                predicted_label, confidence = detector.predict(image)
 
-                # Clear the spinner message
-                spinner_placeholder.empty()
+            # Clear the spinner message
+            spinner_placeholder.empty()
 
-                # Determine color and display result
-                color = "green" if predicted_label.upper() == "REAL" else "red"
-                st.markdown(
-                    f"""
-                    <div style="text-align: center;">
-                        <h3 style="display: inline-block; margin-left: 30px;">
-                            Result: <span style="color: {color};">{predicted_label}</span>
-                        </h3>
-                        <p style="display: inline-block; font-size: 20px; margin-left: -6px;">
-                            Confidence: {confidence*100:.2f}%
-                        </p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-            except Exception as e:
-                spinner_placeholder.empty()
-                st.error(f"An error occurred while processing the image file: {e}")
-        else:
-            st.error("Please select or upload an image file to classify.")
+            # Determine color and display result
+            color = "green" if predicted_label.upper() == "REAL" else "red"
+            st.markdown(
+                f"""
+                <div style="text-align: center;">
+                    <h3 style="display: inline-block; margin-left: 30px;">
+                        Result: <span style="color: {color};">{predicted_label}</span>
+                    </h3>
+                    <p style="display: inline-block; font-size: 20px; margin-left: -6px;">
+                        Confidence: {confidence*100:.2f}%
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        except Exception as e:
+            spinner_placeholder.empty()
+            st.error(f"An error occurred while processing the image file: {e}")
+    else:
+        st.error("Please select or upload an image file to classify.")
 
 
 
