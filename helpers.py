@@ -118,7 +118,7 @@ class DeepfakeAudioDetector:
         confidence = prediction[0][0] if label == "REAL" else 1 - prediction[0][0]
         return label, confidence
 
-class PhishingDetector:
+class MaliciousLinkDetector:
     # Initialize the phishing detector with the model we trained
     def __init__(self, model_path):
         self.device = torch.device("cpu")

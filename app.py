@@ -176,7 +176,7 @@ def extras_tab(detector):
             st.error("Please enter, upload, or select some text to verify.")
 
 # Deepfake URL detector
-def phishing_detection_navbar(phishing_detector):
+def maliciouslink_detection_navbar(maliciouslink_detector):
     st.title("Phishing Detection")
     st.write("Enter a URL or select from the sample URLs, and the model will verify it as **SAFE** or **DANGEROUS**.")
 
@@ -209,7 +209,7 @@ def phishing_detection_navbar(phishing_detector):
     # Verify the URL
     if st.button("Verify URL"):
         if user_url:
-            label, confidence = phishing_detector.check_link_validity(user_url)
+            label, confidence = maliciouslink_detector.check_link_validity(user_url)
 
             color = "green" if label == "SAFE" else "red"
 
@@ -366,10 +366,10 @@ def image_to_base64(image):
 
 # Save to cache to prevent long download times or reloading of models
 @st.cache_resource
-def load_phishing_detector():
+def load_maliciouslink_detector():
     import os
     model_path = os.path.join("models", "malicious_link_detector")
-    return helpers.PhishingDetector(model_path)
+    return helpers.MaliciousLinkDetector(model_path)
 
 @st.cache_resource
 def load_audio_detector():
@@ -438,7 +438,7 @@ def main():
     audio_detector = load_audio_detector()
     image_detector = load_image_detector()
     text_detector = load_text_detector()
-    phishing_detector = load_phishing_detector()
+    maliciouslink_detector = load_maliciouslink_detector()
 
     # Define the content and functionality for each navigation tab
     with tab1:
@@ -446,7 +446,7 @@ def main():
     with tab2:
         deepfake_image_detector_menu(image_detector, test_files)
     with tab3:
-        phishing_detection_navbar(phishing_detector)
+        maliciouslink_detection_navbar(maliciouslink_detector)
     with tab4:
         extras_tab(text_detector)
 
