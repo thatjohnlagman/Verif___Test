@@ -250,7 +250,7 @@ def deepfake_audio_detector_menu(detector, test_files):
 
 
 
-def deepfake_image_detector_menu(detector):
+def deepfake_image_detector_menu(detector, test_files):
     st.title("Image Deepfake Detector")
     st.write("Upload an image file, or choose from the test files provided, and the AI will classify it as **Real** or **Fake**.")
 
@@ -279,10 +279,10 @@ def deepfake_image_detector_menu(detector):
             )
 
     elif input_choice == "Use test file":
-        # Display test files with fixed width
-        folder_path = download_test_files(IMAGE_TEST_FILES_FOLDER_ID, "image_test_files")
-        test_files = [f for f in os.listdir(folder_path) if f.endswith((".png", ".jpg", ".jpeg"))]
-        selected_test_file = st.selectbox("Select a test file:", test_files)
+        # Use preloaded test files
+        folder_path = test_files["image_files"]["folder"]
+        test_files_list = test_files["image_files"]["files"]
+        selected_test_file = st.selectbox("Select a test file:", test_files_list)
         if selected_test_file:
             selected_file_path = os.path.join(folder_path, selected_test_file)
             st.markdown(
