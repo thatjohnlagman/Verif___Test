@@ -295,9 +295,9 @@ def deepfake_image_detector_menu(detector, test_files):
                 unsafe_allow_html=True,
             )
 
-    # Ensure only one "Classify Image" button
-    if selected_file_path:
-        if st.button("Classify Image"):
+    # Single button for both cases
+    if st.button("Classify Image"):
+        if selected_file_path:
             try:
                 predicted_label, confidence = detector.predict(selected_file_path)
                 color = "green" if predicted_label == "REAL" else "red"
@@ -308,12 +308,12 @@ def deepfake_image_detector_menu(detector, test_files):
                         <p>Confidence: {confidence*100:.2f}%</p>
                     </div>
                     """,
-                    unsafe_allow_html=True
+                    unsafe_allow_html=True,
                 )
             except Exception as e:
                 st.error(f"An error occurred while processing the image file: {e}")
-    else:
-        st.info("Please select or upload an image file to classify.")
+        else:
+            st.error("Please select or upload an image file to classify.")
 
 
 
