@@ -357,13 +357,27 @@ def deepfake_image_detector_menu(detector, test_files):
             try:
                 progress.progress(10)  # Start progress
 
+                # Centered spinner message
+                spinner_placeholder = st.empty()
+                spinner_placeholder.markdown(
+                    """
+                    <div style="text-align: center; font-size: 16px; margin-top: 10px;">
+                        <strong>Analyzing... Please wait.</strong>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
                 # Simulate processing stages
-                with st.spinner("Analyzing... Please wait."):
+                with st.spinner():
                     image = Image.open(selected_file_path)
                     progress.progress(50)  # Midway progress
 
                     predicted_label, confidence = detector.predict(image)
                     progress.progress(100)  # Done
+
+                # Clear the spinner message
+                spinner_placeholder.empty()
 
                 # Determine color and display result
                 color = "green" if predicted_label.upper() == "REAL" else "red"
@@ -381,6 +395,7 @@ def deepfake_image_detector_menu(detector, test_files):
                     unsafe_allow_html=True,
                 )
             except Exception as e:
+                spinner_placeholder.empty()
                 st.error(f"An error occurred while processing the image file: {e}")
         else:
             st.error("Please select or upload an image file to classify.")
