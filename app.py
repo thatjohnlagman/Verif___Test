@@ -350,19 +350,20 @@ def deepfake_image_detector_menu(detector, test_files):
                 unsafe_allow_html=True,
             )
 
-    progress = st.progress(0)  # Initialize progress bar
-
-    if st.button("Classify Image"):
+   if st.button("Classify Image"):
         if selected_file_path:
             try:
-                progress.progress(10)  # Start progress
-
                 # Centered spinner message
                 spinner_placeholder = st.empty()
                 spinner_placeholder.markdown(
                     """
                     <div style="text-align: center; font-size: 16px; margin-top: 10px;">
                         <strong>Analyzing... Please wait.</strong>
+                        <div style="margin-top: 10px;">
+                            <div class="spinner-border" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
                     </div>
                     """,
                     unsafe_allow_html=True,
@@ -371,10 +372,11 @@ def deepfake_image_detector_menu(detector, test_files):
                 # Simulate processing stages
                 with st.spinner():
                     image = Image.open(selected_file_path)
-                    progress.progress(50)  # Midway progress
+                    # Simulate processing time for loading model or predictions
+                    import time
+                    time.sleep(2)  # Replace this with actual model processing
 
                     predicted_label, confidence = detector.predict(image)
-                    progress.progress(100)  # Done
 
                 # Clear the spinner message
                 spinner_placeholder.empty()
@@ -399,6 +401,7 @@ def deepfake_image_detector_menu(detector, test_files):
                 st.error(f"An error occurred while processing the image file: {e}")
         else:
             st.error("Please select or upload an image file to classify.")
+
 
 
 
