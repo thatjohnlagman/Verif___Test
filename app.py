@@ -128,6 +128,15 @@ def extras_tab(detector):
     st.title("Extras")
     st.subheader("AI Text Detector (Experimental)")
 
+    st.write(
+        "Upload or type a text, and the AI will classify it as **Human-generated** or **AI-generated**."
+    )
+    st.warning(
+        "Disclaimer: The AI Text Detector is in the experimental phase and may not produce accurate results. "
+        "Use it cautiously and consider it as a supplementary tool rather than definitive."
+        "Testing what the hell streamlit"
+    )
+
     # Input method and text area
     input_choice = st.radio("Choose input method:", ("Type text", "Upload text file"))
 
