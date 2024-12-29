@@ -260,43 +260,67 @@ def deepfake_image_detector_menu(detector, test_files):
     selected_file_path = None
 
     if input_choice == "Upload image file":
-        uploaded_image = st.file_uploader("Upload an Image File", type=["png", "jpg", "jpeg"], key="image_upload")
+        uploaded_image = st.file_uploader("Upload an Image File", type=["png", "jpg", "jpeg"])
         if uploaded_image is not None:
             # Save uploaded image temporarily
             selected_file_path = os.path.join("temp_uploaded_image.jpg")
             with open(selected_file_path, "wb") as f:
                 f.write(uploaded_image.read())
-            st.image(selected_file_path, caption="Uploaded Image", use_column_width=True)
 
-    elif input_choice == "Use test file":
-        # Display preloaded test files
-        test_files_info = test_files["image_files"]
-        test_files_folder = test_files_info["folder"]
-        test_files_list = test_files_info["files"]
-
-        selected_test_file = st.selectbox("Select a test file:", test_files_list, key="image_test_select")
-        if selected_test_file:
-            selected_file_path = os.path.join(test_files_folder, selected_test_file)
-            st.image(selected_file_path, caption="Selected Test Image", use_column_width=True)
-
-    # Add unique keys for buttons
-    classify_image_key = "classify_image_upload" if input_choice == "Upload image file" else "classify_image_test"
-
-    if st.button("Classify Image", key=classify_image_key) and selected_file_path:
-        try:
-            predicted_label, confidence = detector.predict(selected_file_path)
-            color = "green" if predicted_label == "REAL" else "red"
+            # Display the uploaded image with fixed width
             st.markdown(
                 f"""
                 <div style="text-align: center;">
-                    <h3>Prediction: <span style="color: {color};">{predicted_label.title()}</span></h3>
-                    <p>Confidence: {confidence*100:.2f}%</p>
+                    <img src="data:image/png;base64,{image_to_base64(Image.open(selected_file_path))}" alt="Uploaded Image" width="400"/>
+                    <p><strong>Uploaded Image</strong></p>
                 </div>
                 """,
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
-        except Exception as e:
-            st.error(f"An error occurred while processing the image file: {e}")
+
+    elif input_choice == "Use test file":
+        # Use preloaded test files
+        folder_path = test_files["image_files"]["folder"]
+        test_files_list = test_files["image_files"]["files"]
+        selected_test_file = st.selectbox("Select a test file:", test_files_list)
+        if selected_test_file:
+            selected_file_path = os.path.join(folder_path, selected_test_file)
+            st.markdown(
+                f"""
+                <div style="text-align: center;">
+                    <img src="data:image/png;base64,{image_to_base64(Image.open(selected_file_path))}" alt="Test Image" width="400"/>
+                    <p><strong>Selected Test Image</strong></p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+    if st.button("Classify Image"):
+        if selected_file_path:
+            try:
+                # Open the image file
+                image = Image.open(selected_file_path)
+
+                # Pass the image object to the detector
+                predicted_label, confidence = detector.predict(image)
+
+                # Display the prediction result
+                color = "green" if predicted_label == "REAL" else "red"
+                st.markdown(
+                    f"""
+                    <div style="text-align: center;">
+                        <h3>Prediction: <span style="color: {color};">{predicted_label.title()}</span></h3>
+                        <p>Confidence: {confidence*100:.2f}%</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+            except Exception as e:
+                st.error(f"An error occurred while processing the image file: {e}")
+        else:
+            st.error("Please select or upload an image file to classify.")
+
+
 
 
 # Function to convert the image to base64 for inline display in HTML
@@ -308,7 +332,7 @@ def image_to_base64(image):
     image.save(buffered, format="PNG")
     return base64.b64encode(buffered.getvalue()).decode()
 
-def ai_text_detector_menu(detector):
+def ai_text_detector_menu(detector):    
 
     # Text input for manual typing or file upload
     input_choice = st.radio("Choose input method:", ("Type text", "Upload text file"))
