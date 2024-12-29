@@ -30,7 +30,8 @@ def download_models(model_folder_ids):
             model_file = os.path.join(model_path, expected_file)
             if not os.path.exists(model_file):
                 raise FileNotFoundError(
-                    f"Model file {model_file} not found. check the Google Drive folder: {folder_id}"
+                    f"Model file {model_file} not found after download. "
+                    f"Ensure the file is available in the Google Drive folder: {folder_id}"
                 )
             else:
                 print(f"Verified: {model_file} is ready to use.")
@@ -38,7 +39,7 @@ def download_models(model_folder_ids):
         print(f"Contents of {model_path}: {os.listdir(model_path)}")
 
 def init_streamlit():
-    """setup streamlit configuration and custom styling"""
+    """Initialize Streamlit page configuration and styling"""
     st.set_page_config(
         page_title="VerifAI: Where AI Meets Authentication",
         page_icon=os.path.join("images", "Logo.png"),
@@ -49,23 +50,28 @@ def init_streamlit():
     st.markdown("""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
         *, *::before, *::after {
             font-family: 'Poppins', sans-serif;
         }
+
         button[data-baseweb="tab"] {
             font-size: 24px;
             margin: 0;
             width: 100%;
         }
+
         button[title="View fullscreen"] { visibility: hidden; }
         .reportview-container { margin-top: -2em; }
         #MainMenu { visibility: hidden; }
         .stDeployButton { display: none; }
         footer { visibility: hidden; }
         #stDecoration { display: none; }
+
         .stApp {
             padding-top: 20px;
         }
+
         .stProgress > div > div > div {
             background-color: #4284f2 !important;
         }
@@ -73,7 +79,7 @@ def init_streamlit():
     """, unsafe_allow_html=True)
 
 def display_navbar():
-    """show the navigation bar"""
+    """Display the navigation bar with 4 tabs"""
     image_path = os.path.join("images", "1.svg")
     st.image(image_path, use_container_width=True)
 
@@ -105,8 +111,10 @@ def display_navbar():
 def extras_tab(detector):
     st.title("AI Text Detector (Experimental)")
     st.write("Type your own text, upload a text file, or select from the sample texts to check if it is **Human-generated** or **AI-generated**.")
-    st.warning("disclaimer: results may not be accurate. use cautiously.")
-
+    st.warning(
+        "Disclaimer: The AI Text Detector is in the experimental phase and may not produce accurate results. "
+        "Use it cautiously and consider it as a supplementary tool rather than definitive."
+    )
     sample_texts = [
         ("HUMAN-GENERATED", "Yesterday, I walked to the park to clear my head. The air was crisp, and the leaves crunched underfoot. I couldn’t help but feel a sense of nostalgia, remembering how my siblings and I used to play here when we were kids. It’s funny how places can hold so many memories."),
         ("AI-GENERATED", "The park represents a tranquil environment where individuals can contemplate life's deeper meaning and connect with the natural world. The gentle rustling of leaves, combined with the soft caress of a breeze, crafts an atmosphere of relaxation and mental clarity. Parks play a vital role in promoting social interaction, encouraging well-being, and maintaining the ecological balance of urban areas.")
@@ -133,6 +141,7 @@ def extras_tab(detector):
         if user_text.strip():
             try:
                 label, confidence = detector.classify_text(user_text)
+
                 color = "green" if label == "Human-generated" else "red"
                 st.markdown(
                     f"""
@@ -181,6 +190,7 @@ def phishing_detection_navbar(phishing_detector):
     if st.button("Verify URL"):
         if user_url:
             label, confidence = phishing_detector.check_link_validity(user_url)
+
             color = "green" if label == "SAFE" else "red"
 
             st.markdown(
@@ -189,7 +199,7 @@ def phishing_detection_navbar(phishing_detector):
                     <h3 style="display: inline-block; margin-left: 20px;">Result: <span style="color: {color};">{label}</span></h3>
                     <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
                 </div>
-                """, 
+                """,
                 unsafe_allow_html=True)
         else:
             st.error("Please enter or select a URL to verify.")
@@ -288,7 +298,9 @@ def deepfake_image_detector_menu(detector, test_files):
         if selected_file_path:
             try:
                 image = Image.open(selected_file_path)
+
                 predicted_label, confidence = detector.predict(image)
+
                 color = "green" if predicted_label.upper() == "REAL" else "red"
 
                 st.markdown(
@@ -317,7 +329,7 @@ def image_to_base64(image):
     image.save(buffered, format="PNG")
     return base64.b64encode(buffered.getvalue()).decode()
 
-def ai_text_detector_menu(detector):    
+def ai_text_detector_menu(detector):
 
     input_choice = st.radio("Choose input method:", ("Type text", "Upload text file"))
 
@@ -331,7 +343,7 @@ def ai_text_detector_menu(detector):
         )
         if uploaded_file is not None:
             user_text = uploaded_file.read().decode("utf-8")
-
+            
     if st.button("Verify Text"):
         if user_text:
             prediction, human_prob, ai_prob = detector.classify_text(user_text)
@@ -349,7 +361,7 @@ def ai_text_detector_menu(detector):
                 f"""
                 <div style="text-align: center;">
                     <h3 style="display: inline-block; margin-left: 20px;">Result: <span style="color: {color};">{predicted_label}</span></h3>
-                                        <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
+                    <p style="display: inline-block; font-size: 20px; margin-left: -6px;">Confidence: {confidence*100:.2f}%</p>
                 </div>
                 """,
                 unsafe_allow_html=True)
@@ -358,6 +370,7 @@ def ai_text_detector_menu(detector):
 
 @st.cache_resource
 def load_phishing_detector():
+    import os
     model_path = os.path.join("models", "phishing_detection")
     return helpers.PhishingDetector(model_path)
 
@@ -375,22 +388,28 @@ def load_image_detector():
 @st.cache_resource
 def load_text_detector():
     model_path = os.path.join("models", "ai_text_detector", "ai_text_detector_model.pkl")
+
     if not os.path.exists(model_path):
         raise FileNotFoundError(
-            f"Model file {model_path} not found. ensure it is properly downloaded."
+            f"Model file {model_path} not found. Ensure the file is properly downloaded and placed in the correct directory."
         )
+
+    print(f"Loading text detector model from {model_path}...")
     return helpers.AITextDetector(model_path=model_path)
 
 @st.cache_resource
 def download_test_files(folder_id, local_folder_name):
+    """Download test files from Google Drive."""
     folder_path = os.path.join("models", local_folder_name)
     if not os.path.exists(folder_path):
         os.makedirs(folder_path, exist_ok=True)
+        print(f"Downloading {local_folder_name} test files from Google Drive...")
         gdown.download_folder(id=folder_id, output=folder_path, quiet=False)
     return folder_path
 
 @st.cache_resource
 def preload_test_files():
+    """Preload test files from Google Drive."""
     audio_folder = download_test_files(AUDIO_TEST_FILES_FOLDER_ID, "audio_test_files")
     audio_files = [f for f in os.listdir(audio_folder) if f.endswith((".wav", ".mp3"))]
 
@@ -404,7 +423,9 @@ def preload_test_files():
 
 def main():
     init_streamlit()
+
     download_models(MODEL_FOLDER_ID)
+
     test_files = preload_test_files()
 
     tab1, tab2, tab3, tab4 = display_navbar()
