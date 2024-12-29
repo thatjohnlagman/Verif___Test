@@ -239,7 +239,7 @@ def deepfake_audio_detector_menu(detector):
 
 # Streamlit interface for the second menu
 def deepfake_image_detector_menu(detector):
-    st.title("Image Deepfake Detector")
+    st.title("Image Deepfake Detector Helloo")
     st.write("Upload an image, and the AI will classify it as **Real** or **Fake**.")
 
     # Upload image
@@ -340,7 +340,6 @@ def load_phishing_detector():
     import os
     model_path = os.path.join("models", "phishing_detection")
     return helpers.PhishingDetector(model_path)
-
 
 
 @st.cache_resource
