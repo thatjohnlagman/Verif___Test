@@ -361,7 +361,7 @@ def image_to_base64(image):
 
     buffered = io.BytesIO()
     image.save(buffered, format="PNG")
-    # Returns: (str) The Base64-encoded string representation of the image
+    # Returns (str) The Base64-encoded string representation of the image
     return base64.b64encode(buffered.getvalue()).decode()
 
 # Save to cache to prevent long download times or reloading of models
