@@ -145,7 +145,7 @@ def extras_tab(detector):
 
     if input_choice == "Type text":
         # Text area for typing input
-        user_text = st.text_area("Enter text:", height=450, placeholder="Start typing your text here...")
+        user_text = st.text_area("Enter text:", height=300, placeholder="Start typing your text here...")
     elif input_choice == "Upload text file":
         # File uploader for uploading a text file
         uploaded_file = st.file_uploader("Upload a text file", type=["txt"], key="file_uploader_text")
