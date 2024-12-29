@@ -353,36 +353,16 @@ def deepfake_image_detector_menu(detector, test_files):
     if st.button("Classify Image"):
         if selected_file_path:
             try:
-                # Centered spinner message
-                spinner_placeholder = st.empty()
-                spinner_placeholder.markdown(
-                    """
-                    <div style="text-align: center; font-size: 16px; margin-top: 10px;">
-                        <strong>Analyzing... Please wait.</strong>
-                        <div style="margin-top: 10px;">
-                            <div class="spinner-border" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </div>
-                        </div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
+                # Open the image file
+                image = Image.open(selected_file_path)
 
-                # Simulate processing stages
-                with st.spinner():
-                    image = Image.open(selected_file_path)
-                    # Simulate processing time for loading model or predictions
-                    import time
-                    time.sleep(2)  # Replace this with actual model processing
+                # Pass the image object to the detector
+                predicted_label, confidence = detector.predict(image)
 
-                    predicted_label, confidence = detector.predict(image)
-
-                # Clear the spinner message
-                spinner_placeholder.empty()
-
-                # Determine color and display result
+                # Determine color based on label
                 color = "green" if predicted_label.upper() == "REAL" else "red"
+
+                # Center the prediction and confidence output with original styling
                 st.markdown(
                     f"""
                     <div style="text-align: center;">
@@ -397,11 +377,9 @@ def deepfake_image_detector_menu(detector, test_files):
                     unsafe_allow_html=True,
                 )
             except Exception as e:
-                spinner_placeholder.empty()
                 st.error(f"An error occurred while processing the image file: {e}")
         else:
             st.error("Please select or upload an image file to classify.")
-
 
 
 
