@@ -9,9 +9,9 @@ nltk.download('stopwords')
 #  Google Drive folder model IDs for AI detectors
 MODEL_FOLDER_ID = {
     "ai_text_detector": "1N1EkWbTd8S3UiicvNM1eI8dWn21XPH2T",
-    "deepfake_audio_detection": "1utkXjbyiRlAamdWj3QrsANDxDNF4FgVh",
-    "deepfake_image_detector": "1EWSUm5mmhavnX8GsM_7t8ZJ1xtXZA4mb",
-    "phishing_detection": "1Bhmcb6TPZlDKpBjS8xA4tdz_awtE2eup",
+    "audio_deepfake_detector": "1l818hmq09HkK-Tl9ziRw3FUrZDwOrL8t",
+    "image_deepfake_detector": "1CkhLsnhRaCTMK9frwNdMIWWgOq8-OedX",
+    "malicious_link_detector": "1Bhmcb6TPZlDKpBjS8xA4tdz_awtE2eup",
 }
 
 # Google Drive folder IDs for test files
@@ -368,17 +368,17 @@ def image_to_base64(image):
 @st.cache_resource
 def load_phishing_detector():
     import os
-    model_path = os.path.join("models", "phishing_detection")
+    model_path = os.path.join("models", "malicious_link_detector")
     return helpers.PhishingDetector(model_path)
 
 @st.cache_resource
 def load_audio_detector():
-    model_path = os.path.join("models", "deepfake_audio_detection", "model.h5")
+    model_path = os.path.join("models", "audio_deepfake_detector", "cnn_audio_deepfake_best_model.h5")
     return helpers.DeepfakeAudioDetector(model_path=model_path)
 
 @st.cache_resource
 def load_image_detector():
-    model_dir = os.path.join("models", "deepfake_image_detector")
+    model_dir = os.path.join("models", "image_deepfake_detector")
     label_map = {0: "Real", 1: "Fake"}
     return helpers.DeepfakeImageDetector(model_dir=model_dir, label_map=label_map)
 
